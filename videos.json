@@ -1,0 +1,622 @@
+{
+  "bigPicture": {
+    "note": "These are YouTubers' claims, not advice.",
+    "agree": {
+      "title": "Where they agree",
+      "text": "Post-midterm years have been strong for stocks. Their cited stat: about 16% for the S&P over the next 12 months."
+    },
+    "views": [
+      {
+        "who": "Felix",
+        "title": "The index fund itself is the risk",
+        "detail": "It leans on about 8 megacaps.",
+        "videoId": "GSDnRo7IuuU"
+      },
+      {
+        "who": "Brian",
+        "title": "Memory chips and hard drives",
+        "detail": "Shortage through 2027–2028, he says.",
+        "videoId": "_m1XcP1addc"
+      },
+      {
+        "who": "James",
+        "title": "Power, crypto and Tesla",
+        "detail": "AI power as the last growth engine.",
+        "videoId": "yAYMle6FWvc"
+      },
+      {
+        "who": "Jaspreet",
+        "title": "Follow government spending",
+        "detail": "Plus a cash cushion and a dollar hedge.",
+        "videoId": "eSkRta5aldE"
+      }
+    ]
+  },
+  "videos": [
+    {
+      "id": "eSkRta5aldE",
+      "youtubeId": "eSkRta5aldE",
+      "category": "Investing",
+      "title": "Trump's 2027 Plan To Erase The $40T National Debt Crisis",
+      "channel": "Minority Mindset (Jaspreet Singh)",
+      "date": "2026-11-14",
+      "dateLabel": "Nov 14, 2026",
+      "length": "37:52",
+      "url": "https://youtu.be/eSkRta5aldE",
+      "gist": "The government won't pay off the $40T debt. It will try to outgrow it or inflate it away, so he says invest where that money goes.",
+      "points": [
+        {
+          "title": "The gap",
+          "text": "About $5T in taxes in 2025 vs about $7T spent."
+        },
+        {
+          "title": "The Fed is losing money",
+          "text": "It earns about 2% on old loans but pays banks about 4%."
+        },
+        {
+          "title": "Plan 1: borrow short",
+          "text": "More short-term debt after long-term lenders pulled back."
+        },
+        {
+          "title": "Plan 2: stablecoins buy debt",
+          "text": "From Jan 2027 they must be backed by dollars or Treasuries."
+        },
+        {
+          "title": "Plan 3: gold and Bitcoin",
+          "text": "Gold is booked at $42/oz. Revaluing near $4,000 adds about $1T."
+        },
+        {
+          "title": "Plan 4: own stocks",
+          "text": "Stakes in about two dozen companies, like Intel and MP Materials."
+        },
+        {
+          "title": "Midterm effect",
+          "text": "Democrats winning Congress makes Trump's agenda harder to pass."
+        }
+      ],
+      "todo": [
+        "His follow-the-money list: AI (AIQ), robotics (ROBO), chips (SMH), rare earths (REMX), defense (ITA), data centers (DTCR), quantum (QTUM)",
+        "Keep a cash cushion for a dip: high-yield savings at about 4%, or SGOV",
+        "Hedge against the dollar: gold (GLD), Bitcoin (IBIT), international stocks (VXUS)"
+      ],
+      "stamps": [
+        {
+          "seconds": 194,
+          "label": "Why the Fed is losing billions"
+        },
+        {
+          "seconds": 659,
+          "label": "Plan 1: shorten the debt"
+        },
+        {
+          "seconds": 860,
+          "label": "Plan 2: stablecoins buy debt"
+        },
+        {
+          "seconds": 1516,
+          "label": "Follow government money"
+        },
+        {
+          "seconds": 1756,
+          "label": "Keep a cash cushion"
+        }
+      ],
+      "watch": "His '$300,000 of Bitcoin' for the government sounds misspoken (widely reported in billions). Money Pickle sponsor and paid livestream pitch.",
+      "links": []
+    },
+    {
+      "id": "yAYMle6FWvc",
+      "youtubeId": "yAYMle6FWvc",
+      "category": "Crypto",
+      "title": "How Cooked Are We? BTC Post Midterm Price + the Last Growth Engine",
+      "channel": "InvestAnswers (James)",
+      "date": "2026-11-03",
+      "dateLabel": "Nov 3, 2026",
+      "length": "23:41",
+      "url": "https://www.youtube.com/live/yAYMle6FWvc",
+      "gist": "Midterm day after a brutal month. He thinks the Bitcoin bottom is in, and AI power is the last real growth engine.",
+      "points": [
+        {
+          "title": "Power is the bottleneck",
+          "text": "Morgan Stanley: US data centers 70 GW short through 2028."
+        },
+        {
+          "title": "Fear is high",
+          "text": "Crypto fear and greed at 26. Stocks at extreme fear."
+        },
+        {
+          "title": "ETF money leaving",
+          "text": "Bitcoin ETFs red 4 of the last 5 weeks. Ethereum 7 of 8."
+        },
+        {
+          "title": "Support holding",
+          "text": "Bitcoin near $77,500, on the short-term holder price ($77–78K)."
+        },
+        {
+          "title": "Options lean bullish",
+          "text": "Nearly 70% of open options are calls, with bets at $100K and $120K."
+        },
+        {
+          "title": "One growth engine",
+          "text": "He says without AI data centers the US is in a severe recession."
+        },
+        {
+          "title": "Tesla FSD",
+          "text": "Subscriptions up about 70% a year. A billion self-driving miles every 20 days."
+        }
+      ],
+      "todo": [
+        "Watch whether Bitcoin holds the $77–78K support",
+        "Watch weekly Bitcoin ETF flows for a turn from red to green"
+      ],
+      "stamps": [
+        {
+          "seconds": 73,
+          "label": "US is 70 GW short"
+        },
+        {
+          "seconds": 195,
+          "label": "Bitcoin ETF flows"
+        },
+        {
+          "seconds": 435,
+          "label": "Short-term holder price = support"
+        },
+        {
+          "seconds": 1041,
+          "label": "Only 1 growth engine"
+        },
+        {
+          "seconds": 1230,
+          "label": "Tesla FSD"
+        }
+      ],
+      "watch": "Permabull with a Patreon and paid models. The 13 GW target, Anthropic valuation cut and SpaceX IPO ranking are his claims.",
+      "links": []
+    },
+    {
+      "id": "GEZjzM5bAXg",
+      "youtubeId": "GEZjzM5bAXg",
+      "category": "Crypto",
+      "title": "Midterm Chaos (I LOVE It). Bitcoin's 13–71 Day Window",
+      "channel": "Digital Asset News (Rob)",
+      "date": "2026-11-03",
+      "dateLabel": "Nov 3, 2026",
+      "length": "21:09",
+      "url": "https://youtu.be/GEZjzM5bAXg",
+      "gist": "A calm, honest read: Bitcoin has bottomed weeks after the midterms, not on the day.",
+      "points": [
+        {
+          "title": "Bottom comes after",
+          "text": "71 days after in 2014, 39 in 2018, 13 in 2022."
+        },
+        {
+          "title": "Gap is shrinking",
+          "text": "He guesses maybe a week this time."
+        },
+        {
+          "title": "Post-midterm S&P",
+          "text": "Burry's data: +2% at 1 month, +10% at 3, +17.5% at 6, +15.5% at 1 year."
+        },
+        {
+          "title": "Binance hack handled",
+          "text": "Binance covered $6.3B from its own balance sheet. Everyone got paid out."
+        },
+        {
+          "title": "Funds frozen",
+          "text": "FBI, IRS, Tether and Circle froze about $2.5B."
+        },
+        {
+          "title": "Malware warning",
+          "text": "Android TV boxes from one maker shipped with malware on 1.3M devices."
+        },
+        {
+          "title": "His picks",
+          "text": "Solana, a little BNB, maybe Ethereum, Tron. Energy and nuclear next."
+        }
+      ],
+      "todo": [
+        "Watch the weeks after the midterms, not election day itself",
+        "Treat the 13–71 day pattern as 3 data points, not a timing rule"
+      ],
+      "stamps": [
+        {
+          "seconds": 34,
+          "label": "Burry's post-midterm stats"
+        },
+        {
+          "seconds": 269,
+          "label": "The 13–71 day window"
+        },
+        {
+          "seconds": 389,
+          "label": "Binance hack aftermath"
+        },
+        {
+          "seconds": 640,
+          "label": "Android TV box malware"
+        },
+        {
+          "seconds": 776,
+          "label": "His coin picks"
+        }
+      ],
+      "watch": "Only 3 data points. He admits he sold in the bear market last time. Conference ticket link and iTrust Crypto IRA sponsor.",
+      "links": []
+    },
+    {
+      "id": "TW-_iOfg8fA",
+      "youtubeId": "TW-_iOfg8fA",
+      "category": "Crypto",
+      "title": "Crypto Is About To Get INSANE… You've Been Warned!",
+      "channel": "Altcoin Daily (Aaron)",
+      "date": "2026-11-03",
+      "dateLabel": "Nov 3, 2026",
+      "length": "10:50",
+      "url": "https://youtu.be/TW-_iOfg8fA",
+      "gist": "Bitcoin sits on its 50-week average and the midterms may clear a worry. He calls today's fear a bear trap.",
+      "points": [
+        {
+          "title": "50-week average",
+          "text": "Bitcoin is at a level it bounced off in past bull markets."
+        },
+        {
+          "title": "RSI breakout",
+          "text": "Weekly RSI broke a 2-year downtrend and is retesting it."
+        },
+        {
+          "title": "Wall of worry (Tom Lee)",
+          "text": "Markets don't need good news, just one worry cleared."
+        },
+        {
+          "title": "Gridlock helps",
+          "text": "Divided government means less new policy."
+        },
+        {
+          "title": "Big money moving in",
+          "text": "Fidelity and Citi Wealth pitch spot Bitcoin and Ethereum ETFs to clients."
+        },
+        {
+          "title": "Stick to top names",
+          "text": "A token launches in 13 seconds, so most fail. Favors the top 20–50."
+        }
+      ],
+      "todo": [
+        "Check Bitcoin against its 50-week average yourself",
+        "His view: stick to the top 20–50 coins, not new tokens"
+      ],
+      "stamps": [
+        {
+          "seconds": 0,
+          "label": "The 'bear trap'"
+        },
+        {
+          "seconds": 167,
+          "label": "Midterms = clearing event (Tom Lee)"
+        },
+        {
+          "seconds": 360,
+          "label": "Why still bullish"
+        },
+        {
+          "seconds": 470,
+          "label": "Adoption behind the scenes"
+        },
+        {
+          "seconds": 586,
+          "label": "Ethereum bullish"
+        }
+      ],
+      "watch": "Coinbase sponsors the channel and every link is a signup bonus. Chart patterns are not evidence.",
+      "links": []
+    },
+    {
+      "id": "_m1XcP1addc",
+      "youtubeId": "_m1XcP1addc",
+      "category": "Investing",
+      "title": "A Dip Like This Only Comes Once a Decade",
+      "channel": "BWB – Business With Brian",
+      "date": "2026-11-01",
+      "dateLabel": "Nov 1, 2026",
+      "length": "22:22",
+      "url": "https://youtu.be/_m1XcP1addc",
+      "gist": "Memory stocks fell 20–50% from June highs, but demand never left. He sees the dip as a rare buy.",
+      "points": [
+        {
+          "title": "The canary: SK Hynix",
+          "text": "Hit by a China scare and a helium squeeze, still made about $62B profit in a quarter."
+        },
+        {
+          "title": "Cutting board = HBM",
+          "text": "Fastest, priciest memory. Still 20–25% short after new capacity, he says."
+        },
+        {
+          "title": "Countertop = DRAM",
+          "text": "Demand grows a bit faster than supply. UBS sees balance around 2028."
+        },
+        {
+          "title": "Pantry = flash / SSDs",
+          "text": "First layer to loosen, around the second half of 2027."
+        },
+        {
+          "title": "Warehouse = hard drives",
+          "text": "No new factories. Morgan Stanley sees shortages every year through 2028."
+        },
+        {
+          "title": "His 3-year forecast",
+          "text": "Seagate and WDC about $3,000 per $1,000. Even his bear case assumes the shortage holds."
+        },
+        {
+          "title": "Buying SK Hynix",
+          "text": "The US ADR costs about 48% more than the Korean shares. He prefers an ETF."
+        }
+      ],
+      "list": {
+        "heading": "His short list",
+        "rows": [
+          {
+            "lead": "STX",
+            "title": "Seagate",
+            "detail": "Hard drives, pre-sold through 2028. His top pick."
+          },
+          {
+            "lead": "WDC",
+            "title": "Western Digital",
+            "detail": "Hard drives, pricing power."
+          },
+          {
+            "lead": "MU",
+            "title": "Micron",
+            "detail": "Only US maker of both HBM and DRAM."
+          },
+          {
+            "lead": "SNDK",
+            "title": "Sandisk",
+            "detail": "Pure flash, loosens first. 8-for-1 split Nov 20."
+          },
+          {
+            "lead": "SK Hynix",
+            "title": "Via the DRAM ETF",
+            "detail": "Not the ADR (about 48% premium)."
+          },
+          {
+            "lead": "RMBS",
+            "title": "Rambus",
+            "detail": "Steadiest, lowest upside."
+          },
+          {
+            "lead": "ETFs",
+            "title": "DRAM, EWY, SOXX",
+            "detail": "Pure memory, Korea, broad chips."
+          }
+        ]
+      },
+      "todo": [
+        "His approach: buy in small pieces over time, not all at once",
+        "Before buying DRAM, check your broker's fee (Fidelity adds 5%, up to $100 a trade)",
+        "Don't hold both SOXX and SMH: they overlap about 69%",
+        "Next scary memory headline: check SK Hynix's results before acting"
+      ],
+      "stamps": [
+        {
+          "seconds": 34,
+          "label": "SK Hynix, the canary"
+        },
+        {
+          "seconds": 204,
+          "label": "The 4 kitchen layers"
+        },
+        {
+          "seconds": 838,
+          "label": "Hard drives (warehouse)"
+        },
+        {
+          "seconds": 1023,
+          "label": "His 3-year forecast"
+        },
+        {
+          "seconds": 1189,
+          "label": "3 memory ETFs"
+        }
+      ],
+      "watch": "Paid Mayfair Gold segment ($21,666 disclosed). Buy-the-dip pitch from a Patreon seller.",
+      "links": []
+    },
+    {
+      "id": "GSDnRo7IuuU",
+      "youtubeId": "GSDnRo7IuuU",
+      "category": "Investing",
+      "title": "A Once In A 100 Year Investment Opportunity Just Started",
+      "channel": "Felix Prehn",
+      "date": "2026-10-29",
+      "dateLabel": "Oct 29, 2026",
+      "length": "20:34",
+      "url": "https://youtu.be/GSDnRo7IuuU",
+      "gist": "The S&P looks calm, but most stocks are already in a bear market. He thinks three things lining up make this a rare setup.",
+      "points": [
+        {
+          "title": "Hidden bear market",
+          "text": "He says about 60% of US stocks are down 20%+ from their highs."
+        },
+        {
+          "title": "AI and chips hit hardest",
+          "text": "His figure: 9 in 10 down 20%+, 4 in 10 lost half."
+        },
+        {
+          "title": "Index = about 8 stocks",
+          "text": "A few giant tech names carry the S&P, so an index fund is one big bet."
+        },
+        {
+          "title": "AI spending digest",
+          "text": "Weak players wash out, like railways and the internet, then survivors win."
+        },
+        {
+          "title": "Midterms clear the fog",
+          "text": "He cites S&P gains averaging 16% in the 12 months after midterms."
+        },
+        {
+          "title": "Money taps reopening",
+          "text": "M2 growing fastest in about 4 years. The Fed is buying again."
+        },
+        {
+          "title": "Market isn't the economy",
+          "text": "2020: 15% unemployment, record highs. 2022: low unemployment, market fell 19%."
+        }
+      ],
+      "todo": [
+        "Look at what your index fund actually holds",
+        "Judge a business on 3 questions: sales growing, profits growing, good return on what it owns",
+        "Follow where money is flowing instead of marrying one stock"
+      ],
+      "stamps": [
+        {
+          "seconds": 168,
+          "label": "60% of stocks in a bear market"
+        },
+        {
+          "seconds": 451,
+          "label": "The midterm catalyst"
+        },
+        {
+          "seconds": 605,
+          "label": "Pillar 1: AI spending"
+        },
+        {
+          "seconds": 716,
+          "label": "Pillar 3: M2 money supply"
+        },
+        {
+          "seconds": 990,
+          "label": "Market vs economy"
+        }
+      ],
+      "watch": "A funnel for his free training and paid Winston app. The percentages are his, not checked. 'Never once in 50 years' overstates the data.",
+      "links": []
+    },
+    {
+      "id": "bayer",
+      "youtubeId": null,
+      "category": "Motivation",
+      "title": "Get Unstuck and Get More Done: 9 Principles",
+      "channel": "David Bayer (A Changed Mind podcast)",
+      "date": null,
+      "dateLabel": "7 episodes",
+      "length": "",
+      "url": "https://www.youtube.com/@DavidBayer33",
+      "gist": "Being stuck is a clarity problem, not laziness. Get clear, calm down, then take the next small step.",
+      "points": [
+        {
+          "title": "Clarity, not laziness",
+          "text": "Not acting means you lost sight of what, how or why."
+        },
+        {
+          "title": "What game am I playing?",
+          "text": "Tie each dull task to your bigger vision."
+        },
+        {
+          "title": "Find the fear",
+          "text": "Ask: what am I afraid of that makes this hard?"
+        },
+        {
+          "title": "Morning brain dump",
+          "text": "3 columns: negative belief, its opposite, evidence it's true."
+        },
+        {
+          "title": "The next 10 feet",
+          "text": "Act on the clarity you have. Confidence comes after."
+        },
+        {
+          "title": "No escape hatch",
+          "text": "Find a reason big enough that not acting isn't an option."
+        },
+        {
+          "title": "Recommit, don't beat yourself up",
+          "text": "See what led to the slip, then recommit for 24 hours."
+        },
+        {
+          "title": "Calm before you push",
+          "text": "Action from stress makes more stress. Shift your state first."
+        },
+        {
+          "title": "Journal by hand",
+          "text": "10–15 minutes: thank, ask for what you want, ask for others."
+        }
+      ],
+      "todo": [
+        "Make a sheet with 3 columns",
+        "Column 1: every negative belief you woke up with",
+        "Column 2: the exact opposite, written as a new decision",
+        "Column 3: evidence the new decision is true (ask 3 times)",
+        "Do 2–4 beliefs a morning, for about 30 days"
+      ],
+      "stamps": [],
+      "links": [
+        {
+          "title": "David Bayer on YouTube",
+          "href": "https://www.youtube.com/@DavidBayer33"
+        }
+      ],
+      "watch": "Built from 7 podcast episodes. 3 were the closest match to the YouTube titles."
+    },
+    {
+      "id": "ayala",
+      "youtubeId": null,
+      "category": "Sales",
+      "title": "Sales Objection Replies (Nick Ayala Shorts)",
+      "channel": "Nick Ayala",
+      "date": null,
+      "dateLabel": "Shorts",
+      "length": "",
+      "url": "https://www.youtube.com/@nickjayala",
+      "gist": "Whoever is explaining is losing. Agree, ask one question, then stop talking.",
+      "points": [
+        {
+          "title": "“Too expensive” / lowball",
+          "text": "Repeat their number slowly and go quiet. Then: “Help me understand how you got to that.”"
+        },
+        {
+          "title": "Discount request",
+          "text": "“I can work with you on price. Which part of the work should we take out?”"
+        },
+        {
+          "title": "“Competitor is cheaper”",
+          "text": "“They might be. Can I ask what's included in their number?”"
+        },
+        {
+          "title": "“No budget right now”",
+          "text": "“If budget wasn't an issue, would this be a yes?” Then wait."
+        },
+        {
+          "title": "“Send me a proposal”",
+          "text": "“Before I write it, what needs to be in there for this to be a yes?”"
+        },
+        {
+          "title": "“Run it by my partner”",
+          "text": "“What do you think they'll ask you?” Then offer to join that call."
+        },
+        {
+          "title": "“We went with someone else”",
+          "text": "“What did they do that I didn't?” and “Can I check back in 90 days?”"
+        }
+      ],
+      "todo": [
+        "Write the key lines down before sales calls",
+        "Rehearse them out loud",
+        "Run the role-plays in the Notion playbook",
+        "After each line, stop talking and let them answer"
+      ],
+      "stamps": [],
+      "links": [
+        {
+          "title": "Full Sales Objection Playbook (Notion)",
+          "href": "https://app.notion.com/p/3f5b3651d4e481538a01e1a7c7edae35"
+        },
+        {
+          "title": "Nick Ayala on YouTube",
+          "href": "https://www.youtube.com/@nickjayala"
+        }
+      ],
+      "watch": null
+    }
+  ]
+}
