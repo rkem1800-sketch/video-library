@@ -428,7 +428,7 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid 
         inp.addEventListener("change", function () {
           const k = inp.getAttribute("data-k");
           if (inp.checked) ticks[k] = true; else delete ticks[k];
-          save(LS_TICK, ticks);
+          persist();
           inp.parentElement.classList.toggle("done", inp.checked);
           if (root.id === "actions-body") updateProgress();
         });
@@ -481,7 +481,7 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid 
       document.getElementById("del-no").addEventListener("click", function () { wrap.classList.remove("asking"); });
       document.getElementById("del-yes").addEventListener("click", function () {
         if (deleted.indexOf(v.id) === -1) deleted.push(v.id);
-        save(LS_DEL, deleted);
+        persist();
         closeSheet(); refreshAll();
       });
       showSheet();
@@ -494,45 +494,170 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid 
       document.getElementById("sheet").removeAttribute("style");
       renderSettings(!!needHook);
       showSheet();
+      if (!pin) checkSetup().then(function () { if (sheetOpen && sheetMode === "settings") { renderSettings(!!needHook); const f = document.getElementById("pin-in") || document.getElementById("set-pin"); if (needHook && f) f.focus({ preventScroll: true }); } });
       if (needHook) {
         const blk = document.getElementById("connect-block");
-        if (blk) { blk.scrollIntoView({ block: "start" }); const f = document.getElementById("hook-url"); if (f) f.focus({ preventScroll: true }); }
+        if (blk) { blk.scrollIntoView({ block: "start" }); const f = document.getElementById("pin-in") || document.getElementById("set-pin"); if (f) f.focus({ preventScroll: true }); }
       }
     }
+    /* ---------- Account + sync (Video Library API worker) ---------- */
+    const API = "https://video-library-api.rkem1800.workers.dev";
+    const LS_PIN = "videoLib.pin.v1", LS_DIRTY = "videoLib.dirty.v1", LS_SYNCED = "videoLib.syncedAt.v1";
+    try { localStorage.removeItem("videoLib.hook.v1"); } catch (e) {}
+    let pin = load(LS_PIN, "") || "";
+    let serverSetup = null; // null = unknown, true/false from /status
+    let pushTimer = null, syncNote = "";
+    function api(path, opts) {
+      opts = opts || {};
+      const headers = { "Content-Type": "application/json" };
+      if (opts.pin !== undefined ? opts.pin : pin) headers["X-PIN"] = opts.pin !== undefined ? opts.pin : pin;
+      return fetch(API + path, { method: opts.method || "GET", headers: headers, body: opts.body ? JSON.stringify(opts.body) : undefined, cache: "no-store" })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { j.httpStatus = r.status; return j; }); });
+    }
+    function signOut(reason) {
+      pin = ""; try { localStorage.removeItem(LS_PIN); } catch (e) {}
+      syncNote = reason || "";
+    }
+    function persist() {
+      save(LS_DEL, deleted); save(LS_TICK, ticks);
+      if (!pin) return;
+      save(LS_DIRTY, true);
+      if (pushTimer) clearTimeout(pushTimer);
+      pushTimer = setTimeout(pushState, 600);
+    }
+    function pushState() {
+      pushTimer = null;
+      if (!pin) return Promise.resolve();
+      return api("/state", { method: "PUT", body: { deleted: deleted, ticks: ticks } }).then(function (j) {
+        if (j.ok) { save(LS_DIRTY, false); save(LS_SYNCED, Date.now()); syncNote = ""; }
+        else if (j.httpStatus === 401) signOut("Your PIN stopped working. Sign in again.");
+        else syncNote = j.message || ("Sync failed (HTTP " + j.httpStatus + ").");
+      }).catch(function () { syncNote = "Offline. Changes are saved here and will sync later."; });
+    }
+    function adoptState(st) {
+      deleted = Array.isArray(st.deleted) ? st.deleted.slice() : [];
+      ticks = st.ticks && typeof st.ticks === "object" ? Object.assign({}, st.ticks) : {};
+      save(LS_DEL, deleted); save(LS_TICK, ticks); save(LS_SYNCED, Date.now()); save(LS_DIRTY, false);
+    }
+    function pullState() {
+      if (!pin) return Promise.resolve();
+      if (load(LS_DIRTY, false)) return pushState().then(function () { refreshAll(); });
+      return api("/state").then(function (j) {
+        if (j.ok && j.state) { adoptState(j.state); syncNote = ""; refreshAll(); }
+        else if (j.httpStatus === 401) signOut("Your PIN stopped working. Sign in again.");
+        else if (j.message) syncNote = j.message;
+      }).catch(function () { syncNote = "Offline. Showing what's saved on this phone."; });
+    }
+    function mergeAndAdopt(st) {
+      // First sign-in on a device: keep anything done here before signing in.
+      const d = (st.deleted || []).slice();
+      deleted.forEach(function (x) { if (d.indexOf(x) === -1) d.push(x); });
+      const t = Object.assign({}, st.ticks || {}, ticks);
+      const changed = d.length !== (st.deleted || []).length || Object.keys(t).length !== Object.keys(st.ticks || {}).length;
+      adoptState({ deleted: d, ticks: t });
+      if (changed) { save(LS_DIRTY, true); return pushState(); }
+      return Promise.resolve();
+    }
+    function checkSetup() {
+      return api("/status", { pin: "" }).then(function (j) { serverSetup = !!j.setup; }).catch(function () { serverSetup = null; });
+    }
+    function fmtAgo(ts) { if (!ts) return "never"; return fmtWhen(ts); }
     function connectHtml(needHook) {
-      const h = getHook();
-      if (h) {
-        return "<div class='set-block' id='connect-block'><h3>Connect to Summer</h3><p>Connected. Links you add go straight to Summer.</p>" +
-          "<p style='word-break:break-all'>" + esc(h.url.replace(/^(https?:\/\/[^\/]+\/).*(.{6})$/, "$1…$2")) + "</p>" +
-          "<button type='button' class='small-btn' id='hook-forget'>Forget</button></div>";
+      const err = "<p id='acct-err' style='color:#f2a088;margin:8px 0 0'>" + esc(syncNote) + "</p>";
+      if (pin) {
+        return "<div class='set-block' id='connect-block'><h3>Signed in</h3><p>Deletes and ticks sync across your devices. Add video sends to Summer.</p>" +
+          "<p>Last synced: " + esc(fmtAgo(load(LS_SYNCED, 0))) + "</p>" +
+          "<div class='btn-row'><button type='button' class='btn-ghost' id='sync-now'>Sync now</button><button type='button' class='btn-ghost' id='sign-out'>Sign out</button></div>" +
+          "<details style='margin-top:14px'><summary style='cursor:pointer;color:var(--gold-2);font-weight:600'>Change PIN or webhook</summary>" +
+          "<p style='margin-top:8px'>Fill in only what you want to change.</p>" +
+          "<div class='field'><label for='new-pin'>New PIN</label><input id='new-pin' type='password' inputmode='numeric' autocomplete='new-password' placeholder='At least 6 digits'></div>" +
+          "<div class='field'><label for='hook-url'>Webhook URL</label><input id='hook-url' type='url' inputmode='url' autocomplete='off' autocapitalize='off' spellcheck='false' placeholder='https://…'></div>" +
+          "<div class='field'><label for='hook-key'>Sender key</label><input id='hook-key' type='password' autocomplete='off' autocapitalize='off' spellcheck='false' placeholder='Paste the key'></div>" +
+          "<div class='btn-row'><button type='button' class='btn-gold' id='change-save'>Save changes</button></div></details>" + err + "</div>";
       }
-      return "<div class='set-block" + (needHook ? " flash" : "") + "' id='connect-block'><h3>Connect to Summer</h3>" +
-        "<p class='hint'>Copy these from Summer's Routines tab → Video Library: add pasted video.</p>" +
-        "<p style='margin-top:8px'>They show in the Grok Bot desktop app. Saved only on this phone.</p>" +
-        "<div class='field'><label for='hook-url'>Webhook URL</label><input id='hook-url' type='url' inputmode='url' autocomplete='off' autocapitalize='off' spellcheck='false' placeholder='https://…'></div>" +
-        "<div class='field'><label for='hook-key'>Sender key</label><input id='hook-key' type='password' autocomplete='off' autocapitalize='off' spellcheck='false' placeholder='Paste the key'></div>" +
-        "<div class='btn-row'><button type='button' class='btn-gold' id='hook-save'>Save</button></div><p id='hook-err' style='color:#f2a088;margin:8px 0 0'></p></div>";
+      const flash = needHook ? " flash" : "";
+      const why = needHook ? "<p class='hint'>Sign in with your PIN to add videos.</p>" : "";
+      if (serverSetup === false) {
+        return "<div class='set-block" + flash + "' id='connect-block'><h3>Set up</h3>" + why +
+          "<p>One time. Pick a PIN (at least 6 digits) for all your devices, then paste the webhook details.</p>" +
+          "<p class='hint'>Copy these from Summer's Routines tab → Video Library: add pasted video.</p>" +
+          "<p style='margin-top:8px'>They show in the Grok Bot desktop app.</p>" +
+          "<div class='field'><label for='set-pin'>Choose a PIN</label><input id='set-pin' type='password' inputmode='numeric' autocomplete='new-password' placeholder='At least 6 digits'></div>" +
+          "<div class='field'><label for='set-pin2'>PIN again</label><input id='set-pin2' type='password' inputmode='numeric' autocomplete='new-password' placeholder='Type it again'></div>" +
+          "<div class='field'><label for='hook-url'>Webhook URL</label><input id='hook-url' type='url' inputmode='url' autocomplete='off' autocapitalize='off' spellcheck='false' placeholder='https://…'></div>" +
+          "<div class='field'><label for='hook-key'>Sender key</label><input id='hook-key' type='password' autocomplete='off' autocapitalize='off' spellcheck='false' placeholder='Paste the key'></div>" +
+          "<div class='btn-row'><button type='button' class='btn-gold' id='setup-save'>Set up</button></div>" + err + "</div>";
+      }
+      return "<div class='set-block" + flash + "' id='connect-block'><h3>Sign in with PIN</h3>" + why +
+        "<p>Syncs deletes and ticks across devices, and turns on Add video. Videos show without it.</p>" +
+        "<div class='field'><label for='pin-in'>PIN</label><input id='pin-in' type='password' inputmode='numeric' autocomplete='current-password' placeholder='Your PIN'></div>" +
+        "<div class='btn-row'><button type='button' class='btn-gold' id='pin-go'>Sign in</button></div>" +
+        (serverSetup === null ? "<p style='margin-top:8px'>Can't reach the server right now.</p>" : "") + err + "</div>";
+    }
+    function afterSignIn() {
+      if (pendingUrl) { const back = pendingUrl; pendingUrl = ""; openAdd(back); return; }
+      renderSettings(false);
     }
     function bindConnect() {
-      const f = document.getElementById("hook-forget");
-      if (f) f.addEventListener("click", function () { try { localStorage.removeItem(LS_HOOK); } catch (e) {} renderSettings(false); });
-      const sv = document.getElementById("hook-save");
-      if (sv) sv.addEventListener("click", function () {
+      const errEl = function (t) { const e = document.getElementById("acct-err"); if (e) e.textContent = t; };
+      function busy(id, on, label) { const b = document.getElementById(id); if (b) { b.disabled = on; b.textContent = label; } }
+      const go = document.getElementById("pin-go");
+      if (go) {
+        const inp = document.getElementById("pin-in");
+        const doIt = function () {
+          const p = inp.value.trim(); if (!p) { errEl("Type your PIN."); return; }
+          busy("pin-go", true, "Checking…");
+          api("/state", { pin: p }).then(function (j) {
+            busy("pin-go", false, "Sign in");
+            if (j.ok) { pin = p; save(LS_PIN, p); syncNote = ""; return mergeAndAdopt(j.state || {}).then(function () { refreshAll(); afterSignIn(); }); }
+            if (j.error === "not_setup") { serverSetup = false; renderSettings(true); return; }
+            errEl((j.message || "Couldn't sign in.") + (j.triesLeft !== undefined ? " " + j.triesLeft + " tries left." : ""));
+          }).catch(function () { busy("pin-go", false, "Sign in"); errEl("Can't reach the server. Check your connection."); });
+        };
+        go.addEventListener("click", doIt);
+        inp.addEventListener("keydown", function (e) { if (e.key === "Enter") doIt(); });
+      }
+      const su = document.getElementById("setup-save");
+      if (su) su.addEventListener("click", function () {
+        const p1 = document.getElementById("set-pin").value.trim(), p2 = document.getElementById("set-pin2").value.trim();
         const u = document.getElementById("hook-url").value.trim();
-        let k = document.getElementById("hook-key").value.trim().replace(/^authorization:\s*/i, "").replace(/^bearer\s+/i, "");
-        const err = document.getElementById("hook-err");
-        if (!/^https:\/\/\S+$/i.test(u)) { err.textContent = "The webhook URL should start with https://"; return; }
-        if (!k) { err.textContent = "Paste the sender key."; return; }
-        save(LS_HOOK, { url: u, key: k });
-        if (pendingUrl) { const back = pendingUrl; pendingUrl = ""; openAdd(back); return; }
-        renderSettings(false);
+        const k = document.getElementById("hook-key").value.trim().replace(/^authorization:\s*/i, "").replace(/^bearer\s+/i, "");
+        if (p1.length < 6) { errEl("PIN must be at least 6 characters."); return; }
+        if (p1 !== p2) { errEl("The two PINs don't match."); return; }
+        if (!/^https:\/\/\S+$/i.test(u)) { errEl("The webhook URL should start with https://"); return; }
+        if (!k) { errEl("Paste the sender key."); return; }
+        busy("setup-save", true, "Setting up…");
+        api("/setup", { method: "POST", pin: "", body: { pin: p1, webhookUrl: u, webhookKey: k } }).then(function (j) {
+          busy("setup-save", false, "Set up");
+          if (j.ok) { serverSetup = true; pin = p1; save(LS_PIN, p1); return mergeAndAdopt({ deleted: [], ticks: {} }).then(function () { save(LS_DIRTY, true); return pushState(); }).then(afterSignIn); }
+          if (j.error === "pin_required") { serverSetup = true; syncNote = "Already set up. Sign in with your PIN."; renderSettings(false); return; }
+          errEl(j.message || ("Setup failed (HTTP " + j.httpStatus + ")."));
+        }).catch(function () { busy("setup-save", false, "Set up"); errEl("Can't reach the server. Check your connection."); });
+      });
+      const sn = document.getElementById("sync-now");
+      if (sn) sn.addEventListener("click", function () { busy("sync-now", true, "Syncing…"); pullState().then(function () { renderSettings(false); }); });
+      const so = document.getElementById("sign-out");
+      if (so) so.addEventListener("click", function () { signOut(""); renderSettings(false); });
+      const cs = document.getElementById("change-save");
+      if (cs) cs.addEventListener("click", function () {
+        const np = document.getElementById("new-pin").value.trim(), u = document.getElementById("hook-url").value.trim();
+        const k = document.getElementById("hook-key").value.trim().replace(/^authorization:\s*/i, "").replace(/^bearer\s+/i, "");
+        if (!np && !u && !k) { errEl("Nothing to change."); return; }
+        if (np && np.length < 6) { errEl("PIN must be at least 6 characters."); return; }
+        if (u && !/^https:\/\/\S+$/i.test(u)) { errEl("The webhook URL should start with https://"); return; }
+        busy("change-save", true, "Saving…");
+        api("/setup", { method: "POST", body: { newPin: np, webhookUrl: u, webhookKey: k } }).then(function (j) {
+          busy("change-save", false, "Save changes");
+          if (j.ok) { if (np) { pin = np; save(LS_PIN, np); } syncNote = "Saved."; renderSettings(false); return; }
+          errEl(j.message || ("Couldn't save (HTTP " + j.httpStatus + ")."));
+        }).catch(function () { busy("change-save", false, "Save changes"); errEl("Can't reach the server."); });
       });
     }
     function renderSettings(needHook) {
       const body = document.getElementById("sheet-body");
       const del = videos.filter(function (v) { return deleted.indexOf(v.id) !== -1; });
       const nTicks = Object.keys(ticks).length;
-      body.innerHTML = "<h2 class='title'>Settings</h2><p class='meta-line'>Saved on this phone only.</p>" + connectHtml(needHook) +
+      body.innerHTML = "<h2 class='title'>Settings</h2><p class='meta-line'>Videos show for everyone. Sign in to sync and add.</p>" + connectHtml(needHook) +
         "<div class='set-block'><h3>Deleted videos</h3>" +
         (del.length ? "<p>Tap Restore to bring one back.</p>" + del.map(function (v) {
           return "<div class='del-item'><span>" + esc(v.title) + "</span><button type='button' class='small-btn' data-restore='" + esc(v.id) + "'>Restore</button></div>";
@@ -545,13 +670,13 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid 
       body.querySelectorAll("[data-restore]").forEach(function (b) {
         b.addEventListener("click", function () {
           const id = b.getAttribute("data-restore");
-          deleted = deleted.filter(function (x) { return x !== id; }); save(LS_DEL, deleted); refreshAll(); renderSettings();
+          deleted = deleted.filter(function (x) { return x !== id; }); persist(); refreshAll(); renderSettings();
         });
       });
       const ra = document.getElementById("restore-all");
-      if (ra) ra.addEventListener("click", function () { deleted = []; save(LS_DEL, deleted); refreshAll(); renderSettings(); });
+      if (ra) ra.addEventListener("click", function () { deleted = []; persist(); refreshAll(); renderSettings(); });
       const ct = document.getElementById("clear-ticks");
-      if (ct) ct.addEventListener("click", function () { ticks = {}; save(LS_TICK, ticks); refreshAll(); renderSettings(); });
+      if (ct) ct.addEventListener("click", function () { ticks = {}; persist(); refreshAll(); renderSettings(); });
       bindConnect();
     }
 
@@ -656,7 +781,7 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid 
 
 
     /* ---------- Add a video ---------- */
-    const LS_HOOK = "videoLib.hook.v1", LS_SENT = "videoLib.sent.v1";
+    const LS_SENT = "videoLib.sent.v1";
     const VIDEO_RE = [
       /^https?:\/\/(www\.|m\.|music\.)?youtube\.com\/watch\?(.*&)?v=[\w-]{6,}/i,
       /^https?:\/\/(www\.)?youtu\.be\/[\w-]{6,}/i,
@@ -669,7 +794,6 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid 
       return m ? m[0].replace(/[),.;!]+$/, "") : "";
     }
     function isVideoUrl(u) { return VIDEO_RE.some(function (re) { return re.test(u); }); }
-    function getHook() { const h = load(LS_HOOK, null); return h && h.url && h.key ? h : null; }
     function fmtWhen(ts) {
       const d = new Date(ts);
       return d.toLocaleDateString(undefined, { month: "short", day: "numeric" }) + ", " + d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
@@ -728,41 +852,33 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid 
       const url = cleanUrl(raw);
       if (!url) { showMsg("err", "That doesn't look like a link. Paste a YouTube or Facebook video link."); return; }
       if (!isVideoUrl(url)) { showMsg("err", "That's not a YouTube or Facebook video link.<br><span style='word-break:break-all;opacity:.8'>" + esc(url) + "</span>", true, url); return; }
-      const hook = getHook();
-      if (!hook) { openSettings(true, url); return; }
+      if (!pin) { openSettings(true, url); return; }
       const btn = document.getElementById("send-btn");
       btn.disabled = true; btn.textContent = "Sending…";
-      const payload = JSON.stringify({ url: url, source: "video-library-app" });
-      function finish() { btn.disabled = false; btn.textContent = "Send"; }
-      function success(label) {
-        addRecent(url, label);
-        showMsg("ok", "<b>Sent! Summer will add it in a few minutes.</b>" + (label !== "Sent" ? "<br><span style='opacity:.85'>" + esc(label) + "</span>" : ""));
-        document.getElementById("paste-box").value = "";
-        document.getElementById("recent-wrap").innerHTML = recentHtml();
-      }
-      fetch(hook.url, {
-        method: "POST", mode: "cors",
-        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + hook.key },
-        body: payload
-      }).then(function (r) {
-        finish();
-        if (r.ok) { success("Sent"); return; }
-        if (r.type === "opaque" || r.status === 0) { return noCors(); }
-        let hint = "";
-        if (r.status === 401 || r.status === 403) hint = " The sender key was rejected. Re-copy it in Settings.";
-        else if (r.status === 404) hint = " The webhook URL wasn't found. Re-copy it in Settings.";
-        else if (r.status >= 500) hint = " Summer's side had a problem. Try again in a minute.";
-        showMsg("err", "Didn't send (HTTP " + r.status + ")." + hint, true, url);
-      }).catch(function () { return noCors(); });
-      function noCors() {
-        btn.disabled = true; btn.textContent = "Retrying…";
-        return fetch(hook.url, {
-          method: "POST", mode: "no-cors",
-          headers: { "Content-Type": "text/plain", "Authorization": "Bearer " + hook.key },
-          body: payload
-        }).then(function () { finish(); success("Probably sent (no status)"); })
-          .catch(function () { finish(); showMsg("err", "Couldn't reach Summer. Check your connection.", true, url); });
-      }
+      api("/add", { method: "POST", body: { url: url } }).then(function (j) {
+        btn.disabled = false; btn.textContent = "Send";
+        if (j.ok) {
+          addRecent(url, "Sent");
+          showMsg("ok", "<b>Sent! Summer will add it in a few minutes.</b>");
+          document.getElementById("paste-box").value = "";
+          document.getElementById("recent-wrap").innerHTML = recentHtml();
+          return;
+        }
+        if (j.httpStatus === 401 && j.error === "bad_pin") { signOut("Your PIN stopped working. Sign in again."); showMsg("err", "Your PIN didn't work. Sign in again in Settings (gear icon).", true, url); return; }
+        if (j.httpStatus === 429) { showMsg("err", esc(j.message || "Too many tries. Wait 15 minutes."), true, url); return; }
+        if (j.error === "not_setup") { showMsg("err", "Summer isn't set up yet. Open Settings (gear icon) → Set up.", true, url); return; }
+        if (j.webhookStatus) {
+          let hint = "";
+          if (j.webhookStatus === 401 || j.webhookStatus === 403) hint = " The sender key was rejected. Update it in Settings → Change PIN or webhook.";
+          else if (j.webhookStatus === 404) hint = " The webhook URL wasn't found. Update it in Settings.";
+          else if (j.webhookStatus >= 500) hint = " Summer's side had a problem. Try again in a minute.";
+          showMsg("err", "Didn't send. Summer's webhook answered HTTP " + j.webhookStatus + "." + hint, true, url); return;
+        }
+        showMsg("err", esc(j.message || "Didn't send") + " (HTTP " + j.httpStatus + ").", true, url);
+      }).catch(function () {
+        btn.disabled = false; btn.textContent = "Send";
+        showMsg("err", "Couldn't reach the server. Check your connection.", true, url);
+      });
     }
     document.getElementById("add-btn").addEventListener("click", function () { openAdd(""); });
 
@@ -801,6 +917,7 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid 
       .then(function (data) {
         videos = data.videos || []; big = data.bigPicture || null;
         refreshAll();
+        pullState();
         const m = location.hash.match(/^#v=(.+)$/);
         if (m) { const v = videos.find(function (x) { return x.id === decodeURIComponent(m[1]); }); if (v) openVideo(v); }
       })
@@ -808,6 +925,8 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid 
         document.getElementById("library-body").innerHTML = "<p class='empty'>Couldn't load the videos. Check your connection and reopen.</p>";
       });
 
+    window.addEventListener("online", function () { if (pin && load(LS_DIRTY, false)) pushState(); });
+    document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible" && pin && videos.length) pullState(); });
     if ("serviceWorker" in navigator) { navigator.serviceWorker.register("./sw.js").catch(function () {}); }
   })();
   </script>
