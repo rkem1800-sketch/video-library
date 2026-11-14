@@ -576,7 +576,7 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid 
           "<div class='btn-row'><button type='button' class='btn-gold' id='change-save'>Save changes</button></div></details>" + err + "</div>";
       }
       const flash = needHook ? " flash" : "";
-      const why = needHook ? "<p class='hint'>Sign in with your PIN to add videos.</p>" : "";
+      const why = needHook ? "<p class='hint'>" + (serverSetup === false ? "Set this up once to add videos." : "Sign in with your PIN to add videos.") + "</p>" : "";
       if (serverSetup === false) {
         return "<div class='set-block" + flash + "' id='connect-block'><h3>Set up</h3>" + why +
           "<p>One time. Pick a PIN (at least 6 digits) for all your devices, then paste the webhook details.</p>" +
