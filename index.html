@@ -39,7 +39,7 @@ body {
   -webkit-font-smoothing: antialiased;
   padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right);
 }
-button, input { font: inherit; color: inherit; }
+button, input, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 svg { display: block; }
 a { color: inherit; }
@@ -226,6 +226,36 @@ h1.display { font-family: var(--serif); font-weight: 600; font-size: clamp(2rem,
 .del-item span { flex: 1; font-size: 0.98rem; }
 .small-btn { border: 1px solid var(--gold); background: rgba(232,184,90,0.1); color: var(--gold-2); border-radius: 999px; padding: 8px 14px; font-weight: 600; font-size: 0.9rem; }
 
+
+/* Add video */
+.add-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; border: 0; border-radius: 16px; padding: 15px; margin: 0 0 14px;
+  background: linear-gradient(180deg, var(--gold-2), var(--gold)); color: #1a1208; font-weight: 700; font-size: 1.1rem; box-shadow: 0 0 28px var(--glow); }
+.add-btn .plus { font-size: 1.5rem; line-height: 1; margin-top: -2px; }
+.paste-box { width: 100%; min-height: 120px; resize: vertical; border: 1.5px solid rgba(232,184,90,0.4); background: rgba(18,20,31,0.9); border-radius: 18px;
+  padding: 16px; font-size: 1.15rem; line-height: 1.35; outline: none; margin-top: 16px; }
+.paste-box:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(232,184,90,0.18); }
+.btn-row { display: flex; gap: 10px; margin-top: 12px; }
+.btn-row button { flex: 1; border-radius: 14px; padding: 15px; font-weight: 700; font-size: 1.05rem; }
+.btn-ghost { border: 1.5px solid var(--gold); background: rgba(232,184,90,0.08); color: var(--gold-2); }
+.btn-gold { border: 0; background: var(--gold); color: #1a1208; box-shadow: 0 0 24px var(--glow); }
+.btn-gold[disabled] { opacity: 0.6; }
+.msg { margin-top: 14px; padding: 14px; border-radius: 16px; font-size: 1.02rem; display: none; }
+.msg.show { display: block; }
+.msg.ok { background: rgba(95,211,154,0.12); border: 1px solid rgba(95,211,154,0.45); color: #c9f2dc; }
+.msg.err { background: rgba(224,112,80,0.1); border: 1px solid rgba(224,112,80,0.45); color: #f6c4b4; }
+.msg .small-btn { margin-top: 10px; }
+.recent { margin-top: 10px; }
+.recent-item { display: flex; gap: 10px; align-items: baseline; padding: 10px 0; border-top: 1px solid var(--line); font-size: 0.92rem; }
+.recent-item a { flex: 1; color: var(--soft); text-decoration: none; word-break: break-all; }
+.recent-item .when { color: var(--muted); font-size: 0.8rem; white-space: nowrap; }
+.recent-item .st { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--c, #5fd39a); }
+.field { margin-top: 10px; }
+.field label { display: block; font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+.field input { width: 100%; border: 1px solid var(--line); background: var(--elev-2); border-radius: 12px; padding: 12px; font-size: 1rem; outline: none; }
+.field input:focus { border-color: var(--gold); }
+.hint { margin: 8px 0 0; padding: 10px 12px; border-radius: 12px; background: rgba(232,184,90,0.12); border: 1px solid rgba(232,184,90,0.4); color: var(--gold-2); font-size: 0.95rem; }
+.set-block.flash { border-color: var(--gold); box-shadow: 0 0 24px var(--glow); }
+
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
   </style>
@@ -244,6 +274,7 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid 
 
   <main class="main">
     <section class="panel active" id="panel-library" role="tabpanel">
+      <button type="button" class="add-btn" id="add-btn"><span class="plus">+</span> Add video</button>
       <div class="search-wrap">
         <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6"/><path d="M16 16l5 5"/></svg>
         <input type="search" id="search" placeholder="Search titles, tickers, ideas" autocomplete="off">
@@ -456,18 +487,52 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid 
       showSheet();
     }
 
-    function openSettings() {
+    let pendingUrl = "";
+    function openSettings(needHook, url) {
       sheetMode = "settings"; current = null;
-      const body = document.getElementById("sheet-body");
+      pendingUrl = url || "";
       document.getElementById("sheet").removeAttribute("style");
-      renderSettings();
+      renderSettings(!!needHook);
       showSheet();
+      if (needHook) {
+        const blk = document.getElementById("connect-block");
+        if (blk) { blk.scrollIntoView({ block: "start" }); const f = document.getElementById("hook-url"); if (f) f.focus({ preventScroll: true }); }
+      }
     }
-    function renderSettings() {
+    function connectHtml(needHook) {
+      const h = getHook();
+      if (h) {
+        return "<div class='set-block' id='connect-block'><h3>Connect to Summer</h3><p>Connected. Links you add go straight to Summer.</p>" +
+          "<p style='word-break:break-all'>" + esc(h.url.replace(/^(https?:\/\/[^\/]+\/).*(.{6})$/, "$1…$2")) + "</p>" +
+          "<button type='button' class='small-btn' id='hook-forget'>Forget</button></div>";
+      }
+      return "<div class='set-block" + (needHook ? " flash" : "") + "' id='connect-block'><h3>Connect to Summer</h3>" +
+        "<p class='hint'>Copy these from Summer's Routines tab → Video Library: add pasted video.</p>" +
+        "<p style='margin-top:8px'>They show in the Grok Bot desktop app. Saved only on this phone.</p>" +
+        "<div class='field'><label for='hook-url'>Webhook URL</label><input id='hook-url' type='url' inputmode='url' autocomplete='off' autocapitalize='off' spellcheck='false' placeholder='https://…'></div>" +
+        "<div class='field'><label for='hook-key'>Sender key</label><input id='hook-key' type='password' autocomplete='off' autocapitalize='off' spellcheck='false' placeholder='Paste the key'></div>" +
+        "<div class='btn-row'><button type='button' class='btn-gold' id='hook-save'>Save</button></div><p id='hook-err' style='color:#f2a088;margin:8px 0 0'></p></div>";
+    }
+    function bindConnect() {
+      const f = document.getElementById("hook-forget");
+      if (f) f.addEventListener("click", function () { try { localStorage.removeItem(LS_HOOK); } catch (e) {} renderSettings(false); });
+      const sv = document.getElementById("hook-save");
+      if (sv) sv.addEventListener("click", function () {
+        const u = document.getElementById("hook-url").value.trim();
+        let k = document.getElementById("hook-key").value.trim().replace(/^authorization:\s*/i, "").replace(/^bearer\s+/i, "");
+        const err = document.getElementById("hook-err");
+        if (!/^https:\/\/\S+$/i.test(u)) { err.textContent = "The webhook URL should start with https://"; return; }
+        if (!k) { err.textContent = "Paste the sender key."; return; }
+        save(LS_HOOK, { url: u, key: k });
+        if (pendingUrl) { const back = pendingUrl; pendingUrl = ""; openAdd(back); return; }
+        renderSettings(false);
+      });
+    }
+    function renderSettings(needHook) {
       const body = document.getElementById("sheet-body");
       const del = videos.filter(function (v) { return deleted.indexOf(v.id) !== -1; });
       const nTicks = Object.keys(ticks).length;
-      body.innerHTML = "<h2 class='title'>Settings</h2><p class='meta-line'>Saved on this phone only.</p>" +
+      body.innerHTML = "<h2 class='title'>Settings</h2><p class='meta-line'>Saved on this phone only.</p>" + connectHtml(needHook) +
         "<div class='set-block'><h3>Deleted videos</h3>" +
         (del.length ? "<p>Tap Restore to bring one back.</p>" + del.map(function (v) {
           return "<div class='del-item'><span>" + esc(v.title) + "</span><button type='button' class='small-btn' data-restore='" + esc(v.id) + "'>Restore</button></div>";
@@ -487,6 +552,7 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid 
       if (ra) ra.addEventListener("click", function () { deleted = []; save(LS_DEL, deleted); refreshAll(); renderSettings(); });
       const ct = document.getElementById("clear-ticks");
       if (ct) ct.addEventListener("click", function () { ticks = {}; save(LS_TICK, ticks); refreshAll(); renderSettings(); });
+      bindConnect();
     }
 
     function lockScroll() {
@@ -588,6 +654,118 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid 
       updateProgress();
     }
 
+
+    /* ---------- Add a video ---------- */
+    const LS_HOOK = "videoLib.hook.v1", LS_SENT = "videoLib.sent.v1";
+    const VIDEO_RE = [
+      /^https?:\/\/(www\.|m\.|music\.)?youtube\.com\/watch\?(.*&)?v=[\w-]{6,}/i,
+      /^https?:\/\/(www\.)?youtu\.be\/[\w-]{6,}/i,
+      /^https?:\/\/(www\.|m\.)?youtube\.com\/(shorts|live)\/[\w-]{6,}/i,
+      /^https?:\/\/(www\.|m\.|web\.)?facebook\.com\/(reel\/\d+|watch\/?\?(.*&)?v=\d+|[^\/?#]+\/videos\/[^?#]*\d+|video\.php\?(.*&)?v=\d+|share\/[rv]\/[\w-]+)/i,
+      /^https?:\/\/fb\.watch\/[\w-]+/i
+    ];
+    function cleanUrl(t) {
+      const m = String(t || "").trim().match(/https?:\/\/\S+/i);
+      return m ? m[0].replace(/[),.;!]+$/, "") : "";
+    }
+    function isVideoUrl(u) { return VIDEO_RE.some(function (re) { return re.test(u); }); }
+    function getHook() { const h = load(LS_HOOK, null); return h && h.url && h.key ? h : null; }
+    function fmtWhen(ts) {
+      const d = new Date(ts);
+      return d.toLocaleDateString(undefined, { month: "short", day: "numeric" }) + ", " + d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+    }
+    function recentHtml() {
+      const sent = load(LS_SENT, []);
+      if (!sent.length) return "";
+      return "<h3 class='sec-h'>Sent recently</h3><div class='recent'>" + sent.slice(0, 8).map(function (r) {
+        return "<div class='recent-item'><a href='" + esc(r.url) + "' target='_blank' rel='noopener'>" + esc(r.url) + "</a><span class='st'>" + esc(r.status) + "</span><span class='when'>" + esc(fmtWhen(r.at)) + "</span></div>";
+      }).join("") + "</div>";
+    }
+    function addRecent(url, status) {
+      const sent = load(LS_SENT, []).filter(function (r) { return r.url !== url; });
+      sent.unshift({ url: url, status: status, at: Date.now() });
+      save(LS_SENT, sent.slice(0, 15));
+    }
+    function openAdd(prefill) {
+      sheetMode = "add"; current = null;
+      document.getElementById("sheet").removeAttribute("style");
+      const body = document.getElementById("sheet-body");
+      body.innerHTML = "<h2 class='title'>Add a video</h2><p class='meta-line'>Paste a YouTube or Facebook link. Summer writes the notes.</p>" +
+        "<textarea class='paste-box' id='paste-box' placeholder='Paste a YouTube link' autocomplete='off' autocapitalize='off' spellcheck='false'></textarea>" +
+        "<div class='btn-row'><button type='button' class='btn-ghost' id='paste-btn'>Paste</button><button type='button' class='btn-gold' id='send-btn'>Send</button></div>" +
+        "<div class='msg' id='add-msg'></div><div id='recent-wrap'>" + recentHtml() + "</div>";
+      const box = document.getElementById("paste-box");
+      if (prefill) box.value = prefill;
+      const pasteBtn = document.getElementById("paste-btn");
+      if (!(navigator.clipboard && navigator.clipboard.readText)) pasteBtn.style.display = "none";
+      pasteBtn.addEventListener("click", function () {
+        navigator.clipboard.readText().then(function (t) { box.value = t.trim(); hideMsg(); })
+          .catch(function () { showMsg("err", "Couldn't read the clipboard. Long-press the box and tap Paste."); box.focus(); });
+      });
+      box.addEventListener("input", hideMsg);
+      document.getElementById("send-btn").addEventListener("click", function () { sendVideo(box.value); });
+      showSheet();
+    }
+    function hideMsg() { const m = document.getElementById("add-msg"); if (m) { m.className = "msg"; m.innerHTML = ""; } }
+    function showMsg(kind, html, withCopy, link) {
+      const m = document.getElementById("add-msg"); if (!m) return;
+      m.className = "msg show " + kind;
+      m.innerHTML = "<div>" + html + "</div>" + (withCopy ? "<p style='margin:8px 0 0'>Copy the link and paste it in Summer's chat instead.</p><button type='button' class='small-btn' id='copy-link'>Copy link</button>" : "");
+      const c = document.getElementById("copy-link");
+      if (c) c.addEventListener("click", function () { copyText(link || "", c); });
+    }
+    function copyText(t, btn) {
+      function done() { btn.textContent = "Copied ✓"; }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(t).then(done, function () { fallbackCopy(t); done(); });
+      } else { fallbackCopy(t); done(); }
+    }
+    function fallbackCopy(t) {
+      const ta = document.createElement("textarea"); ta.value = t; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); } catch (e) {} document.body.removeChild(ta);
+    }
+    function sendVideo(raw) {
+      const url = cleanUrl(raw);
+      if (!url) { showMsg("err", "That doesn't look like a link. Paste a YouTube or Facebook video link."); return; }
+      if (!isVideoUrl(url)) { showMsg("err", "That's not a YouTube or Facebook video link.<br><span style='word-break:break-all;opacity:.8'>" + esc(url) + "</span>", true, url); return; }
+      const hook = getHook();
+      if (!hook) { openSettings(true, url); return; }
+      const btn = document.getElementById("send-btn");
+      btn.disabled = true; btn.textContent = "Sending…";
+      const payload = JSON.stringify({ url: url, source: "video-library-app" });
+      function finish() { btn.disabled = false; btn.textContent = "Send"; }
+      function success(label) {
+        addRecent(url, label);
+        showMsg("ok", "<b>Sent! Summer will add it in a few minutes.</b>" + (label !== "Sent" ? "<br><span style='opacity:.85'>" + esc(label) + "</span>" : ""));
+        document.getElementById("paste-box").value = "";
+        document.getElementById("recent-wrap").innerHTML = recentHtml();
+      }
+      fetch(hook.url, {
+        method: "POST", mode: "cors",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + hook.key },
+        body: payload
+      }).then(function (r) {
+        finish();
+        if (r.ok) { success("Sent"); return; }
+        if (r.type === "opaque" || r.status === 0) { return noCors(); }
+        let hint = "";
+        if (r.status === 401 || r.status === 403) hint = " The sender key was rejected. Re-copy it in Settings.";
+        else if (r.status === 404) hint = " The webhook URL wasn't found. Re-copy it in Settings.";
+        else if (r.status >= 500) hint = " Summer's side had a problem. Try again in a minute.";
+        showMsg("err", "Didn't send (HTTP " + r.status + ")." + hint, true, url);
+      }).catch(function () { return noCors(); });
+      function noCors() {
+        btn.disabled = true; btn.textContent = "Retrying…";
+        return fetch(hook.url, {
+          method: "POST", mode: "no-cors",
+          headers: { "Content-Type": "text/plain", "Authorization": "Bearer " + hook.key },
+          body: payload
+        }).then(function () { finish(); success("Probably sent (no status)"); })
+          .catch(function () { finish(); showMsg("err", "Couldn't reach Summer. Check your connection.", true, url); });
+      }
+    }
+    document.getElementById("add-btn").addEventListener("click", function () { openAdd(""); });
+
     function refreshAll() { renderChips(); renderLibrary(); renderBig(); renderActions(); }
 
     const HEAD = {
@@ -614,7 +792,7 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid 
     document.getElementById("search").addEventListener("keydown", function (e) { if (e.key === "Enter") e.target.blur(); });
     document.getElementById("sheet-close").addEventListener("click", function () { closeSheet(); });
     document.getElementById("backdrop").addEventListener("click", function () { closeSheet(); });
-    document.getElementById("gear").addEventListener("click", openSettings);
+    document.getElementById("gear").addEventListener("click", function () { openSettings(false); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape" && sheetOpen) closeSheet(); });
     setupGestures();
 

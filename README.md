@@ -15,7 +15,22 @@ After the first visit it works offline.
 - **Big picture**: takeaways across the investing videos. These are YouTubers' claims, not advice.
 - **Action list**: every "What to do" item from every video in one tickable list.
 
-Ticks and deletions are saved in `localStorage` on that device. The gear icon (top right) has **Restore** for deleted videos and **Untick everything**. To remove a video for good, delete its entry from `videos.json`.
+Ticks, deletions, the webhook connection and the sent list are saved in `localStorage` on that device. The gear icon (top right) has **Restore** for deleted videos and **Untick everything**. To remove a video for good, delete its entry from `videos.json`.
+
+## Add a video
+
+The gold **+ Add video** button on the Library tab opens a sheet. Paste a link (or tap **Paste**), then tap **Send**.
+
+- Accepted links: `youtube.com/watch`, `youtu.be`, `youtube.com/shorts`, `youtube.com/live`, and Facebook video or reel links (`facebook.com/reel/…`, `…/videos/…`, `watch?v=`, `share/r|v/…`, `fb.watch`). Channel pages and anything else get an error and a **Copy link** button, so you can paste the link into Summer's chat instead.
+- Send POSTs to Summer's Grok Bot routine webhook:
+  - `Content-Type: application/json`
+  - `Authorization: Bearer <sender key>` (the header documented for Grok Bot routine webhooks)
+  - body `{"url": "<link>", "source": "video-library-app"}`
+  - A 200 means the routine started. Any other status is shown in the app.
+- If the browser blocks the request (CORS or network), the app retries once with `mode: "no-cors"` and a `text/plain` body and shows "Probably sent". In that mode the browser drops the `Authorization` header, so the retry may be rejected without the app seeing it.
+- The last 15 sends are kept under "Sent recently" (localStorage).
+
+**Connect to Summer (one time):** gear icon → *Connect to Summer*. Paste the **Webhook URL** and **Sender key** from Summer's Routines tab → *Video Library: add pasted video*. They show in the Grok Bot desktop app. Both are stored only in this phone's localStorage. **Forget** removes them. The URL and key are secret and are never in this repo.
 
 ## Run locally
 
