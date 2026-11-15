@@ -34,6 +34,60 @@
   },
   "videos": [
     {
+      "id": "fb-2393487488055769",
+      "youtubeId": null,
+      "category": "AI",
+      "title": "Build Your Own AI Chief of Staff in 6 Steps",
+      "channel": "Taki Wong - AI For Business (Facebook)",
+      "date": "2026-11-15",
+      "dateLabel": "Nov 15, 2026",
+      "length": "1:36",
+      "url": "https://www.facebook.com/share/v/19oLqGQUAo/",
+      "gist": "You don't need your own AI model. Connect the right pieces and you get an assistant that knows your business and does tasks for you.",
+      "points": [
+        {
+          "title": "1. Give it a home",
+          "text": "A computer or cloud server that runs 24/7. He prefers the cloud."
+        },
+        {
+          "title": "2. Install an agentic harness",
+          "text": "Tools so it can click, type and run tasks. He uses Hermes."
+        },
+        {
+          "title": "3. Choose its AI brain",
+          "text": "Claude, ChatGPT or an open-source model."
+        },
+        {
+          "title": "4. Teach it who you are",
+          "text": "Let it interview you about your business, offers, clients and goals."
+        },
+        {
+          "title": "5. Give it a persistent memory",
+          "text": "A second brain tied to your files, contacts and key info."
+        },
+        {
+          "title": "6. Add skills",
+          "text": "Explain a job once. It remembers and repeats it every day."
+        }
+      ],
+      "todo": [
+        "Pick a home that runs 24/7 (a cloud server is easiest)",
+        "Install an agent harness that can click, type and run tasks",
+        "Choose the AI model that powers it",
+        "Let it interview you about your business, offers, clients and goals",
+        "Connect its memory to your files, contacts and key info",
+        "Teach it one job at a time as a saved skill"
+      ],
+      "stamps": [],
+      "links": [
+        {
+          "title": "Original Facebook video",
+          "href": "https://www.facebook.com/watch/?v=2393487488055769"
+        }
+      ],
+      "watch": "Lead-magnet reel: 'comment JARVIS' gets you his guide. 'One weekend' is his claim. Hermes is his pick, not a tested comparison. Be careful what files and accounts you connect."
+    },
+    {
       "id": "eSkRta5aldE",
       "youtubeId": "eSkRta5aldE",
       "category": "Investing",

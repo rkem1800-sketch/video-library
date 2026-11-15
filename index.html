@@ -322,7 +322,8 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid 
       Investing:  { c: "#5fd39a", card: "linear-gradient(165deg,#0f2a1d 0%,#08130e 100%)" },
       Crypto:     { c: "#f2a83b", card: "linear-gradient(165deg,#2c1c08 0%,#140d05 100%)" },
       Motivation: { c: "#ff7a52", card: "linear-gradient(165deg,#2e140c 0%,#150907 100%)" },
-      Sales:      { c: "#7fa8ff", card: "linear-gradient(165deg,#111c33 0%,#090e1a 100%)" }
+      Sales:      { c: "#7fa8ff", card: "linear-gradient(165deg,#111c33 0%,#090e1a 100%)" },
+      AI:         { c: "#c58bff", card: "linear-gradient(165deg,#22113a 0%,#100819 100%)" }
     };
     const CATS = Object.keys(CAT);
     function hexA(hex, a) {
@@ -346,6 +347,10 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid 
       if (cat === "Sales") return "<svg viewBox='0 0 80 80' aria-hidden='true'><path d='M12 18 a8 8 0 0 1 8 -8 H52 a8 8 0 0 1 8 8 V38 a8 8 0 0 1 -8 8 H30 L18 56 V46 H20 a8 8 0 0 1 -8 -8 Z' fill='" + soft + "' stroke='" + c + "' stroke-width='3.5' stroke-linejoin='round'/>" +
         "<path d='M34 52 H58 a8 8 0 0 0 8 -8 V30' fill='none' stroke='" + c + "' stroke-opacity='.5' stroke-width='3' stroke-linecap='round'/><path d='M58 52 L66 62 V50' fill='none' stroke='" + c + "' stroke-opacity='.5' stroke-width='3' stroke-linejoin='round'/>" +
         "<circle cx='26' cy='28' r='3.2' fill='" + c + "'/><circle cx='36' cy='28' r='3.2' fill='" + c + "'/><circle cx='46' cy='28' r='3.2' fill='" + c + "'/></svg>";
+      if (cat === "AI") return "<svg viewBox='0 0 80 80' aria-hidden='true'><path d='M40 8 V18' stroke='" + c + "' stroke-width='3.5' stroke-linecap='round'/><circle cx='40' cy='8' r='3.5' fill='" + c + "'/>" +
+        "<rect x='14' y='18' width='52' height='40' rx='12' fill='" + soft + "' stroke='" + c + "' stroke-width='3.5'/>" +
+        "<circle cx='30' cy='36' r='5' fill='" + c + "'/><circle cx='50' cy='36' r='5' fill='" + c + "'/><path d='M31 47 H49' stroke='" + c + "' stroke-width='3.5' stroke-linecap='round'/>" +
+        "<path d='M8 32 V44 M72 32 V44' stroke='" + c + "' stroke-width='4' stroke-linecap='round'/><path d='M28 58 V68 H52 V58' fill='none' stroke='" + c + "' stroke-opacity='.5' stroke-width='3'/></svg>";
       return "";
     }
     const PLAY = "<svg viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z'/></svg>";
@@ -409,7 +414,7 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid 
         b.type = "button"; b.className = "card"; b.setAttribute("style", catVars(v.category));
         b.innerHTML = "<div class='card-visual'>" + icon(v.category) + "</div><div class='card-meta'>" +
           "<h2>" + esc(v.title) + "</h2><p class='chan'>" + esc(v.channel) + "<br>" + metaLine(v).replace(/<span class='sep'>·<\/span>/g, " · ") + "</p>" +
-          "<div class='card-tags'><span class='tag'>" + esc(v.category) + "</span>" + (v.youtubeId ? "" : "<span class='tag'>Collection</span>") + "</div></div>";
+          "<div class='card-tags'><span class='tag'>" + esc(v.category) + "</span>" + (v.youtubeId || /facebook\.com/i.test(v.url || "") ? "" : "<span class='tag'>Collection</span>") + "</div></div>";
         b.addEventListener("click", function () { openVideo(v); });
         body.appendChild(b);
       });
@@ -438,6 +443,8 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid 
     function videoSheet(v) {
       const watchBtn = v.youtubeId
         ? "<a class='cta' href='" + esc(v.url) + "' target='_blank' rel='noopener'>" + PLAY + "Watch on YouTube</a>"
+        : /facebook\.com/i.test(v.url || "")
+        ? "<a class='cta' href='" + esc(v.url) + "' target='_blank' rel='noopener'>" + PLAY + "Watch on Facebook</a>"
         : "<a class='cta' href='" + esc(v.url) + "' target='_blank' rel='noopener'>" + PLAY + "Open the channel</a>";
       let h = "<div class='sheet-visual'>" + icon(v.category) + "</div>" +
         "<h2 class='title'>" + esc(v.title) + "</h2>" +
