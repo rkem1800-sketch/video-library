@@ -1,4 +1,5 @@
-// Video Library API — Cloudflare Worker (module syntax). Secrets live only in KV.
+// Video Library + Penguin HQ API — Cloudflare Worker (module syntax).
+// Secrets live only in KV and Worker secrets. HQ_BRIEF_TOKEN_HASH = SHA-256 hex of the brief-writer token.
 const ORIGIN = "https://rkem1800-sketch.github.io";
 const MAX_FAILS = 10;          // wrong PINs per IP before lockout
 const GLOBAL_MAX_FAILS = 50;   // wrong PINs across all IPs before lockout
@@ -16,7 +17,7 @@ function cors(req) {
   if (req.headers.get("Origin") === ORIGIN) {
     h["Access-Control-Allow-Origin"] = ORIGIN;
     h["Access-Control-Allow-Methods"] = "GET, PUT, POST, OPTIONS";
-    h["Access-Control-Allow-Headers"] = "Content-Type, X-PIN";
+    h["Access-Control-Allow-Headers"] = "Content-Type, X-PIN, Authorization";
     h["Access-Control-Max-Age"] = "86400";
   }
   return h;
@@ -64,6 +65,28 @@ async function checkPin(req, env, cfg) {
   }
   if (ls.mine.n) await env.KV.delete("fails:" + ip);
   return null;
+}
+
+// ---------- Penguin HQ helpers ----------
+const HQ_MAX_TASKS = 1000, HQ_MAX_TOMBS = 1000;
+function str(v, max) { return typeof v === "string" ? v.trim().slice(0, max) : ""; }
+function cleanTask(t) {
+  if (!t || typeof t !== "object") return null;
+  const id = str(t.id, 64); const text = str(t.text, 400);
+  if (!id || !/^[\w-]+$/.test(id) || !text) return null;
+  const num = (x) => (typeof x === "number" && isFinite(x) && x > 0 ? Math.floor(x) : 0);
+  return { id, text, bot: str(t.bot, 64), done: t.done === true, createdAt: num(t.createdAt) || Date.now(), updatedAt: num(t.updatedAt) || Date.now(), doneAt: t.done === true ? (num(t.doneAt) || Date.now()) : 0 };
+}
+function cleanBrief(b) {
+  if (!b || typeof b !== "object") return null;
+  const items = Array.isArray(b.items) ? b.items.slice(0, 12).map((it) => {
+    if (typeof it === "string") return { emoji: "", text: str(it, 300), bot: "" };
+    if (!it || typeof it !== "object") return null;
+    return { emoji: str(it.emoji, 8), text: str(it.text, 300), bot: str(it.bot, 64) };
+  }).filter((it) => it && it.text) : [];
+  const out = { date: str(b.date, 20), title: str(b.title, 80), headline: str(b.headline, 300), items, from: str(b.from, 60), updatedAt: Date.now() };
+  if (!out.headline && !items.length) return null;
+  return out;
 }
 
 export default {
@@ -142,6 +165,50 @@ export default {
         return json(req, 502, { ok: false, error: "webhook_unreachable", message: "Couldn't reach Summer's webhook." });
       }
       return json(req, resp.ok ? 200 : 502, { ok: resp.ok, webhookStatus: resp.status });
+    }
+
+    // ---------- Penguin HQ ----------
+    if (path === "/hq/state") {
+      if (req.method !== "GET" && req.method !== "PUT") return json(req, 405, { ok: false, error: "method" });
+      const bad = await checkPin(req, env, cfg); if (bad) return bad;
+      const cur = (await env.KV.get("hq:state", "json")) || { tasks: [], deleted: [], updatedAt: 0 };
+      if (req.method === "GET") return json(req, 200, { ok: true, state: cur });
+      const body = await readJson(req);
+      if (!body || !Array.isArray(body.tasks)) return json(req, 400, { ok: false, error: "bad_state", message: "Need {tasks: [], deleted: []}" });
+      // Merge: newest updatedAt wins per task; deleted ids are kept as tombstones.
+      const tombs = new Set((cur.deleted || []).filter((x) => typeof x === "string"));
+      (Array.isArray(body.deleted) ? body.deleted : []).forEach((x) => { if (typeof x === "string" && x.length <= 64) tombs.add(x); });
+      const byId = new Map();
+      (cur.tasks || []).forEach((t) => byId.set(t.id, t));
+      body.tasks.slice(0, HQ_MAX_TASKS).forEach((raw) => {
+        const t = cleanTask(raw); if (!t) return;
+        const old = byId.get(t.id);
+        if (!old || (t.updatedAt || 0) >= (old.updatedAt || 0)) byId.set(t.id, t);
+      });
+      const tasks = [...byId.values()].filter((t) => !tombs.has(t.id)).slice(-HQ_MAX_TASKS);
+      const st = { tasks, deleted: [...tombs].slice(-HQ_MAX_TOMBS), updatedAt: Date.now() };
+      await env.KV.put("hq:state", JSON.stringify(st));
+      return json(req, 200, { ok: true, state: st });
+    }
+
+    if (path === "/hq/brief") {
+      if (req.method === "GET") {
+        const bad = await checkPin(req, env, cfg); if (bad) return bad;
+        return json(req, 200, { ok: true, brief: (await env.KV.get("hq:brief", "json")) || null });
+      }
+      if (req.method === "PUT" || req.method === "POST") {
+        // Write-only token for routines. Only its SHA-256 hash is stored in the Worker.
+        if (!env.HQ_BRIEF_TOKEN_HASH) return json(req, 503, { ok: false, error: "no_token", message: "Brief writer token isn't configured." });
+        const auth = req.headers.get("Authorization") || "";
+        const tok = auth.replace(/^bearer\s+/i, "").trim();
+        if (!tok || tok.length > 200 || !safeEq(await sha256Hex(tok), String(env.HQ_BRIEF_TOKEN_HASH).toLowerCase())) return json(req, 401, { ok: false, error: "bad_token" });
+        const body = await readJson(req);
+        const brief = cleanBrief(body && body.brief ? body.brief : body);
+        if (!brief) return json(req, 400, { ok: false, error: "bad_brief", message: "Need a headline or at least one item." });
+        await env.KV.put("hq:brief", JSON.stringify(brief));
+        return json(req, 200, { ok: true, brief });
+      }
+      return json(req, 405, { ok: false, error: "method" });
     }
 
     return json(req, 404, { ok: false, error: "not_found" });

@@ -45,6 +45,10 @@ All endpoints use JSON. CORS allows only `https://rkem1800-sketch.github.io`.
 
 Wrong PINs: 10 from one IP (or 50 total) lock PIN checks for 15 minutes (HTTP 429).
 
+### Penguin HQ endpoints
+
+The same Worker also serves Penguin HQ (https://rkem1800-sketch.github.io/penguin-hq/): `GET/PUT /hq/state` (tasks, `X-PIN`), `GET /hq/brief` (`X-PIN`) and `PUT /hq/brief` (write-only `Authorization: Bearer` token whose SHA-256 is the Worker secret `HQ_BRIEF_TOKEN_HASH`). See the penguin-hq README for formats. They reuse this PIN and lockout.
+
 ## Run locally
 
 ```bash
