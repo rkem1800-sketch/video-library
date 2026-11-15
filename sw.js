@@ -1,9 +1,10 @@
-const CACHE = "video-library-v4";
+const CACHE = "video-library-v5";
 const ASSETS = [
   "./",
   "./index.html",
   "./videos.json",
   "./manifest.json",
+  "./apple-touch-icon.png",
   "./icon-180.png",
   "./icon-192.png",
   "./icon-512.png",
