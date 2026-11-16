@@ -88,8 +88,8 @@ const WS = {
     fields: { job: "s", customer: "s", address: "s", due: "d", owner: "s", comments: "l" },
     name: (r) => [r.job && "Job " + r.job, r.customer].filter(Boolean).join(" ") },
   followups: { label: "Follow-ups", statuses: ["Waiting", "Urgent", "Contacted", "Booked", "Handled", "Do not contact"],
-    fields: { customer: "s", phone: "s", email: "s", channel: "s", contactedAt: "dt", want: "l", urgency: "u", job: "s", note: "l", source: "s", sourceId: "s", lastSeen: "d" },
-    keep: ["Handled", "Do not contact"],
+    fields: { customer: "s", phone: "s", email: "s", channel: "s", contactedAt: "dt", want: "l", urgency: "u", job: "s", note: "l", source: "s", sourceId: "s", lastSeen: "d", called: "yn", booked: "yn", chatted: "yn" },
+    keep: ["Handled", "Do not contact", "Booked"],
     name: (r) => r.customer || r.phone || r.email || "Contact" }
 };
 function str(v, max) { return typeof v === "string" ? v.trim().slice(0, max) : (typeof v === "number" && isFinite(v) ? String(v).slice(0, max) : ""); }
@@ -117,6 +117,7 @@ function cleanRow(ws, r) {
     else if (t === "l") out[k] = str(r[k], 2000);
     else if (t === "d") out[k] = dateStr(r[k]);
     else if (t === "dt") { const v = str(r[k], 16); out[k] = /^\d{4}-\d{2}-\d{2}( \d{2}:\d{2})?$/.test(v) ? v : ""; }
+    else if (t === "yn") { const v = r[k], x = typeof v === "string" ? v.trim().toLowerCase() : v; out[k] = (x === true || x === 1 || x === "yes" || x === "true" || x === "1") ? "yes" : (x === false || x === 0 || x === "no" || x === "false" || x === "0") ? "no" : ""; }
     else if (t === "u") out[k] = r[k] === "urgent" ? "urgent" : "normal";
     else if (t === "n") { const n = typeof r[k] === "string" ? parseFloat(r[k].replace(/[$,]/g, "")) : r[k]; out[k] = typeof n === "number" && isFinite(n) ? Math.round(n * 100) / 100 : null; }
     else if (t === "f") out[k] = Array.isArray(r[k]) ? [...new Set(r[k].filter((f) => CLOSEOUT_FLAGS.includes(f)))] : [];
