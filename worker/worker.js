@@ -86,11 +86,7 @@ const WS = {
     name: (r) => [r.customer, r.plan].filter(Boolean).join(", ") },
   permits: { label: "Permits", statuses: ["Not started", "In progress", "Submitted", "Approved", "Closed"],
     fields: { job: "s", customer: "s", address: "s", due: "d", owner: "s", comments: "l" },
-    name: (r) => [r.job && "Job " + r.job, r.customer].filter(Boolean).join(" ") },
-  followups: { label: "Follow-ups", statuses: ["Waiting", "Urgent", "Contacted", "Booked", "Handled", "Do not contact"],
-    fields: { customer: "s", phone: "s", email: "s", channel: "s", contactedAt: "dt", want: "l", urgency: "u", job: "s", note: "l", source: "s", sourceId: "s", lastSeen: "d", called: "yn", booked: "yn", chatted: "yn" },
-    keep: ["Handled", "Do not contact", "Booked"],
-    name: (r) => r.customer || r.phone || r.email || "Contact" }
+    name: (r) => [r.job && "Job " + r.job, r.customer].filter(Boolean).join(" ") }
 };
 function str(v, max) { return typeof v === "string" ? v.trim().slice(0, max) : (typeof v === "number" && isFinite(v) ? String(v).slice(0, max) : ""); }
 function num(x) { return typeof x === "number" && isFinite(x) && x > 0 ? Math.floor(x) : 0; }
@@ -314,46 +310,7 @@ export default {
       const r = await writeColl(env, coll("tasks"), body, "patch", body.by || "Bot");
       return json(req, 200, { ok: true, added: r.added, updated: r.changed, removed: r.removed, total: r.st.tasks.length });
     }
-    // Follow-ups sweep: RK taps Run now (PIN) -> Worker POSTs the Front Desk webhook (URL/key only in Worker secrets).
-    if (path === "/hq/followups/run" || path === "/hq/followups/status") {
-      const connected = !!env.FRONTDESK_SWEEP_WEBHOOK_URL;
-      const meta = (await env.KV.get("hq:fu:sweep", "json")) || {};
-      if (path === "/hq/followups/status" && req.method === "POST") {
-        if (!(await tokenOk(req, env, false))) return json(req, 401, { ok: false, error: "bad_token" });
-        const body = await readJson(req) || {};
-        const t = Date.parse(body.finishedAt || "");
-        meta.lastSweepFinished = { at: isFinite(t) ? new Date(t).toISOString() : new Date().toISOString(), by: str(body.by, 60) || "Front Desk", summary: str(body.summary, 300) };
-        await env.KV.put("hq:fu:sweep", JSON.stringify(meta));
-        await addEvents(env, [ev(meta.lastSweepFinished.by, "Finished a follow-up sweep" + (meta.lastSweepFinished.summary ? ": " + meta.lastSweepFinished.summary : ""), "bot", { ws: "followups" })]);
-        return json(req, 200, { ok: true, connected, lastSweepFinished: meta.lastSweepFinished });
-      }
-      if (path === "/hq/followups/status") {
-        if (req.method !== "GET") return json(req, 405, { ok: false, error: "method" });
-        const bad = await checkPin(req, env, cfg); if (bad) return bad;
-        return json(req, 200, { ok: true, connected, lastRunRequested: meta.lastRunRequested || null, lastSweepFinished: meta.lastSweepFinished || null });
-      }
-      if (req.method !== "POST") return json(req, 405, { ok: false, error: "method" });
-      const bad = await checkPin(req, env, cfg); if (bad) return bad;
-      if (!connected) return json(req, 503, { ok: false, error: "not_connected", message: "Sweep not connected yet", connected: false });
-      const last = meta.lastRunRequested ? Date.parse(meta.lastRunRequested) : 0;
-      const wait = Math.ceil((last + 120000 - Date.now()) / 1000);
-      if (wait > 0) return json(req, 429, { ok: false, error: "too_soon", message: "A sweep just started. Try again in " + wait + " seconds.", retryAfter: wait, lastRunRequested: meta.lastRunRequested });
-      const requestedAt = new Date().toISOString();
-      meta.lastRunRequested = requestedAt;
-      await env.KV.put("hq:fu:sweep", JSON.stringify(meta));
-      const headers = { "Content-Type": "application/json" };
-      // Same header the Video Library sends to its Grok Bot routine webhook.
-      const key = String(env.FRONTDESK_SWEEP_WEBHOOK_KEY || "").trim().replace(/^authorization:\s*/i, "").replace(/^bearer\s+/i, "");
-      if (key) headers["Authorization"] = "Bearer " + key;
-      let resp;
-      try {
-        resp = await fetch(env.FRONTDESK_SWEEP_WEBHOOK_URL, { method: "POST", headers, body: JSON.stringify({ source: "penguin-hq", action: "sweep", requestedAt }) });
-      } catch (e) {
-        return json(req, 502, { ok: false, error: "webhook_unreachable", message: "Couldn't reach the Front Desk bot.", lastRunRequested: requestedAt });
-      }
-      if (resp.ok) await addEvents(env, [ev("RK", "Started a follow-up sweep", "bot", { ws: "followups" })]);
-      return json(req, resp.ok ? 200 : 502, { ok: resp.ok, webhookStatus: resp.status, lastRunRequested: requestedAt, message: resp.ok ? "Sweep started" : "The Front Desk bot didn't accept the request (HTTP " + resp.status + ")." });
-    }
+    // Follow-ups moved to the Penguin-owned Worker penguin-hq-api (Nov 16 2026).
     // Workspaces: /hq/ws (counts), /hq/ws/<ar|closeout|members|permits>
     if (path === "/hq/ws") {
       if (req.method !== "GET") return json(req, 405, { ok: false, error: "method" });
