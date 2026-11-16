@@ -47,7 +47,7 @@ Wrong PINs: 10 from one IP (or 50 total) lock PIN checks for 15 minutes (HTTP 42
 
 ### Penguin HQ endpoints
 
-The same Worker also serves Penguin HQ (https://rkem1800-sketch.github.io/penguin-hq/): board (`/hq/state`, `/hq/tasks`), workspaces (`/hq/ws`, `/hq/ws/<ar|closeout|members|permits>`), activity (`/hq/activity`) and the daily brief (`/hq/brief`). Reads and app writes use this same PIN and lockout. Bot writes use write-only Bearer tokens whose SHA-256 hashes are the Worker secrets `HQ_WRITE_TOKEN_HASH` and `HQ_BRIEF_TOKEN_HASH`. See the penguin-hq README for formats.
+The same Worker also serves Penguin HQ (https://rkem1800-sketch.github.io/penguin-hq/): board (`/hq/state`, `/hq/tasks`), workspaces (`/hq/ws`, `/hq/ws/<followups|ar|closeout|members|permits>`), follow-up sweeps (`POST /hq/followups/run` with PIN → webhook in secret `FRONTDESK_SWEEP_WEBHOOK_URL`, optional `FRONTDESK_SWEEP_WEBHOOK_KEY` sent as Bearer; `/hq/followups/status`), activity (`/hq/activity`) and the daily brief (`/hq/brief`). Reads and app writes use this same PIN and lockout. Bot writes use write-only Bearer tokens whose SHA-256 hashes are the Worker secrets `HQ_WRITE_TOKEN_HASH` and `HQ_BRIEF_TOKEN_HASH`. See the penguin-hq README for formats.
 
 ## Run locally
 

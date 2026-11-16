@@ -86,7 +86,11 @@ const WS = {
     name: (r) => [r.customer, r.plan].filter(Boolean).join(", ") },
   permits: { label: "Permits", statuses: ["Not started", "In progress", "Submitted", "Approved", "Closed"],
     fields: { job: "s", customer: "s", address: "s", due: "d", owner: "s", comments: "l" },
-    name: (r) => [r.job && "Job " + r.job, r.customer].filter(Boolean).join(" ") }
+    name: (r) => [r.job && "Job " + r.job, r.customer].filter(Boolean).join(" ") },
+  followups: { label: "Follow-ups", statuses: ["Waiting", "Urgent", "Contacted", "Booked", "Handled", "Do not contact"],
+    fields: { customer: "s", phone: "s", email: "s", channel: "s", contactedAt: "dt", want: "l", urgency: "u", job: "s", note: "l", source: "s", sourceId: "s", lastSeen: "d" },
+    keep: ["Handled", "Do not contact"],
+    name: (r) => r.customer || r.phone || r.email || "Contact" }
 };
 function str(v, max) { return typeof v === "string" ? v.trim().slice(0, max) : (typeof v === "number" && isFinite(v) ? String(v).slice(0, max) : ""); }
 function num(x) { return typeof x === "number" && isFinite(x) && x > 0 ? Math.floor(x) : 0; }
@@ -112,6 +116,8 @@ function cleanRow(ws, r) {
     if (t === "s") out[k] = str(r[k], 200);
     else if (t === "l") out[k] = str(r[k], 2000);
     else if (t === "d") out[k] = dateStr(r[k]);
+    else if (t === "dt") { const v = str(r[k], 16); out[k] = /^\d{4}-\d{2}-\d{2}( \d{2}:\d{2})?$/.test(v) ? v : ""; }
+    else if (t === "u") out[k] = r[k] === "urgent" ? "urgent" : "normal";
     else if (t === "n") { const n = typeof r[k] === "string" ? parseFloat(r[k].replace(/[$,]/g, "")) : r[k]; out[k] = typeof n === "number" && isFinite(n) ? Math.round(n * 100) / 100 : null; }
     else if (t === "f") out[k] = Array.isArray(r[k]) ? [...new Set(r[k].filter((f) => CLOSEOUT_FLAGS.includes(f)))] : [];
   }
@@ -147,7 +153,7 @@ function ev(by, text, kind, extra) { return Object.assign({ id: "e" + Date.now()
 function coll(name) {
   if (name === "tasks") return { key: "hq:state", list: "tasks", clean: cleanTask, label: "Board", name: (t) => t.text, status: (t) => TASK_LABEL[t.status] };
   const ws = WS[name]; if (!ws) return null;
-  return { key: "hq:ws:" + name, list: "rows", clean: (r) => cleanRow(ws, r), label: ws.label, name: ws.name, status: (r) => r.status, ws: name };
+  return { key: "hq:ws:" + name, list: "rows", clean: (r) => cleanRow(ws, r), label: ws.label, name: ws.name, status: (r) => r.status, ws: name, keep: ws.keep };
 }
 function pruneTasks(st) {
   const cut = Date.now() - DONE_KEEP_MS; const tombs = new Set(st.deleted);
@@ -176,7 +182,10 @@ async function writeColl(env, c, body, mode, by) {
     if (!raw || typeof raw !== "object") continue;
     const old = byId.get(str(raw.id, 64));
     let item;
-    if (mode === "patch") item = c.clean(Object.assign({}, old || {}, raw, { updatedAt: Date.now(), createdAt: old ? old.createdAt : Date.now() }));
+    if (mode === "patch") {
+      const keepSt = c.keep && old && c.keep.includes(old.status) && raw.reopen !== true ? { status: old.status } : {};
+      item = c.clean(Object.assign({}, old || {}, raw, keepSt, { updatedAt: Date.now(), createdAt: old ? old.createdAt : Date.now() }));
+    }
     else item = c.clean(raw);
     if (!item || tombs.has(item.id) && mode !== "patch") continue;
     if (mode === "patch") tombs.delete(item.id);
@@ -303,6 +312,46 @@ export default {
       if (!body || (!Array.isArray(body.tasks) && !Array.isArray(body.deleted))) return json(req, 400, { ok: false, error: "bad_body", message: "Need {tasks: [...]} and/or {deleted: [...]}" });
       const r = await writeColl(env, coll("tasks"), body, "patch", body.by || "Bot");
       return json(req, 200, { ok: true, added: r.added, updated: r.changed, removed: r.removed, total: r.st.tasks.length });
+    }
+    // Follow-ups sweep: RK taps Run now (PIN) -> Worker POSTs the Front Desk webhook (URL/key only in Worker secrets).
+    if (path === "/hq/followups/run" || path === "/hq/followups/status") {
+      const connected = !!env.FRONTDESK_SWEEP_WEBHOOK_URL;
+      const meta = (await env.KV.get("hq:fu:sweep", "json")) || {};
+      if (path === "/hq/followups/status" && req.method === "POST") {
+        if (!(await tokenOk(req, env, false))) return json(req, 401, { ok: false, error: "bad_token" });
+        const body = await readJson(req) || {};
+        const t = Date.parse(body.finishedAt || "");
+        meta.lastSweepFinished = { at: isFinite(t) ? new Date(t).toISOString() : new Date().toISOString(), by: str(body.by, 60) || "Front Desk", summary: str(body.summary, 300) };
+        await env.KV.put("hq:fu:sweep", JSON.stringify(meta));
+        await addEvents(env, [ev(meta.lastSweepFinished.by, "Finished a follow-up sweep" + (meta.lastSweepFinished.summary ? ": " + meta.lastSweepFinished.summary : ""), "bot", { ws: "followups" })]);
+        return json(req, 200, { ok: true, connected, lastSweepFinished: meta.lastSweepFinished });
+      }
+      if (path === "/hq/followups/status") {
+        if (req.method !== "GET") return json(req, 405, { ok: false, error: "method" });
+        const bad = await checkPin(req, env, cfg); if (bad) return bad;
+        return json(req, 200, { ok: true, connected, lastRunRequested: meta.lastRunRequested || null, lastSweepFinished: meta.lastSweepFinished || null });
+      }
+      if (req.method !== "POST") return json(req, 405, { ok: false, error: "method" });
+      const bad = await checkPin(req, env, cfg); if (bad) return bad;
+      if (!connected) return json(req, 503, { ok: false, error: "not_connected", message: "Sweep not connected yet", connected: false });
+      const last = meta.lastRunRequested ? Date.parse(meta.lastRunRequested) : 0;
+      const wait = Math.ceil((last + 120000 - Date.now()) / 1000);
+      if (wait > 0) return json(req, 429, { ok: false, error: "too_soon", message: "A sweep just started. Try again in " + wait + " seconds.", retryAfter: wait, lastRunRequested: meta.lastRunRequested });
+      const requestedAt = new Date().toISOString();
+      meta.lastRunRequested = requestedAt;
+      await env.KV.put("hq:fu:sweep", JSON.stringify(meta));
+      const headers = { "Content-Type": "application/json" };
+      // Same header the Video Library sends to its Grok Bot routine webhook.
+      const key = String(env.FRONTDESK_SWEEP_WEBHOOK_KEY || "").trim().replace(/^authorization:\s*/i, "").replace(/^bearer\s+/i, "");
+      if (key) headers["Authorization"] = "Bearer " + key;
+      let resp;
+      try {
+        resp = await fetch(env.FRONTDESK_SWEEP_WEBHOOK_URL, { method: "POST", headers, body: JSON.stringify({ source: "penguin-hq", action: "sweep", requestedAt }) });
+      } catch (e) {
+        return json(req, 502, { ok: false, error: "webhook_unreachable", message: "Couldn't reach the Front Desk bot.", lastRunRequested: requestedAt });
+      }
+      if (resp.ok) await addEvents(env, [ev("RK", "Started a follow-up sweep", "bot", { ws: "followups" })]);
+      return json(req, resp.ok ? 200 : 502, { ok: resp.ok, webhookStatus: resp.status, lastRunRequested: requestedAt, message: resp.ok ? "Sweep started" : "The Front Desk bot didn't accept the request (HTTP " + resp.status + ")." });
     }
     // Workspaces: /hq/ws (counts), /hq/ws/<ar|closeout|members|permits>
     if (path === "/hq/ws") {
