@@ -68,14 +68,54 @@ async function checkPin(req, env, cfg) {
 }
 
 // ---------- Penguin HQ helpers ----------
-const HQ_MAX_TASKS = 1000, HQ_MAX_TOMBS = 1000;
-function str(v, max) { return typeof v === "string" ? v.trim().slice(0, max) : ""; }
+const HQ_MAX_ITEMS = 2000, HQ_MAX_TOMBS = 2000, HQ_MAX_EVENTS = 200, DONE_KEEP_MS = 14 * 86400000;
+const TASK_STATUSES = ["todo", "doing", "review", "done", "future"];
+const TASK_LABEL = { todo: "To Do", doing: "In Progress", review: "For Review", done: "Done", future: "Future" };
+const PRIORITIES = ["high", "med", "low"];
+const CLOSEOUT_FLAGS = ["permit", "return visit", "parts", "estimate", "rebate", "photos"];
+// Field types: s = short text, l = long text, n = number, d = date (YYYY-MM-DD), f = closeout flags
+const WS = {
+  ar: { label: "AR Collections", statuses: ["Not due", "Due", "In collection", "Paid", "Forgiven", "Do not contact"],
+    fields: { customer: "s", invoice: "s", balance: "n", due: "d", lastContact: "d", note: "l", source: "s", sourceId: "s" },
+    name: (r) => [r.customer, r.invoice && "#" + r.invoice].filter(Boolean).join(" ") },
+  closeout: { label: "Job Closeout", statuses: ["Unresolved", "Incomplete", "Closed out"],
+    fields: { job: "s", customer: "s", tech: "s", date: "d", flags: "f", note: "l" },
+    name: (r) => [r.job && "Job " + r.job, r.customer].filter(Boolean).join(" ") },
+  members: { label: "Membership Tracker", statuses: ["Active not due", "Confirmed due", "Scheduled", "Completed", "Expired"],
+    fields: { customer: "s", plan: "s", lastVisit: "d", nextDue: "d", note: "l" },
+    name: (r) => [r.customer, r.plan].filter(Boolean).join(", ") },
+  permits: { label: "Permits", statuses: ["Not started", "In progress", "Submitted", "Approved", "Closed"],
+    fields: { job: "s", customer: "s", address: "s", due: "d", owner: "s", comments: "l" },
+    name: (r) => [r.job && "Job " + r.job, r.customer].filter(Boolean).join(" ") }
+};
+function str(v, max) { return typeof v === "string" ? v.trim().slice(0, max) : (typeof v === "number" && isFinite(v) ? String(v).slice(0, max) : ""); }
+function num(x) { return typeof x === "number" && isFinite(x) && x > 0 ? Math.floor(x) : 0; }
+function dateStr(v) { const s = str(v, 10); return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : ""; }
+function goodId(id) { return !!id && id.length <= 64 && /^[\w.-]+$/.test(id); }
 function cleanTask(t) {
   if (!t || typeof t !== "object") return null;
-  const id = str(t.id, 64); const text = str(t.text, 400);
-  if (!id || !/^[\w-]+$/.test(id) || !text) return null;
-  const num = (x) => (typeof x === "number" && isFinite(x) && x > 0 ? Math.floor(x) : 0);
-  return { id, text, bot: str(t.bot, 64), done: t.done === true, createdAt: num(t.createdAt) || Date.now(), updatedAt: num(t.updatedAt) || Date.now(), doneAt: t.done === true ? (num(t.doneAt) || Date.now()) : 0 };
+  const id = str(t.id, 64); const text = str(t.text || t.title, 300);
+  if (!goodId(id) || !text) return null;
+  let status = TASK_STATUSES.includes(t.status) ? t.status : (t.done === true ? "done" : "todo");
+  const now = Date.now();
+  return { id, text, bot: str(t.bot, 64), status, done: status === "done", priority: PRIORITIES.includes(t.priority) ? t.priority : "",
+    due: dateStr(t.due), notes: str(t.notes, 2000), needsRK: t.needsRK === true,
+    createdAt: num(t.createdAt) || now, updatedAt: num(t.updatedAt) || now, doneAt: status === "done" ? (num(t.doneAt) || now) : 0 };
+}
+function cleanRow(ws, r) {
+  if (!r || typeof r !== "object") return null;
+  const id = str(r.id, 64); if (!goodId(id)) return null;
+  const now = Date.now();
+  const out = { id, status: ws.statuses.includes(r.status) ? r.status : ws.statuses[0], needsRK: r.needsRK === true,
+    createdAt: num(r.createdAt) || now, updatedAt: num(r.updatedAt) || now };
+  for (const [k, t] of Object.entries(ws.fields)) {
+    if (t === "s") out[k] = str(r[k], 200);
+    else if (t === "l") out[k] = str(r[k], 2000);
+    else if (t === "d") out[k] = dateStr(r[k]);
+    else if (t === "n") { const n = typeof r[k] === "string" ? parseFloat(r[k].replace(/[$,]/g, "")) : r[k]; out[k] = typeof n === "number" && isFinite(n) ? Math.round(n * 100) / 100 : null; }
+    else if (t === "f") out[k] = Array.isArray(r[k]) ? [...new Set(r[k].filter((f) => CLOSEOUT_FLAGS.includes(f)))] : [];
+  }
+  return out;
 }
 function cleanBrief(b) {
   if (!b || typeof b !== "object") return null;
@@ -87,6 +127,82 @@ function cleanBrief(b) {
   const out = { date: str(b.date, 20), title: str(b.title, 80), headline: str(b.headline, 300), items, from: str(b.from, 60), updatedAt: Date.now() };
   if (!out.headline && !items.length) return null;
   return out;
+}
+// Write-only token for bots/routines: HQ_WRITE_TOKEN_HASH (and, for the brief, HQ_BRIEF_TOKEN_HASH). Only SHA-256 hashes live in the Worker.
+async function tokenOk(req, env, allowBrief) {
+  const tok = (req.headers.get("Authorization") || "").replace(/^bearer\s+/i, "").trim();
+  if (!tok || tok.length > 200) return false;
+  const h = await sha256Hex(tok);
+  const hashes = [env.HQ_WRITE_TOKEN_HASH, allowBrief ? env.HQ_BRIEF_TOKEN_HASH : null].filter(Boolean).map((x) => String(x).toLowerCase());
+  return hashes.some((x) => safeEq(h, x));
+}
+async function addEvents(env, evs) {
+  if (!evs.length) return;
+  const cur = (await env.KV.get("hq:activity", "json")) || { events: [] };
+  const events = evs.concat(cur.events || []).slice(0, HQ_MAX_EVENTS);
+  await env.KV.put("hq:activity", JSON.stringify({ events, updatedAt: Date.now() }));
+}
+function ev(by, text, kind, extra) { return Object.assign({ id: "e" + Date.now().toString(36) + randHex(3), ts: Date.now(), by: str(by, 60) || "RK", text: str(text, 300), kind: kind || "note" }, extra || {}); }
+// Collections: tasks live in "hq:state" ({tasks, deleted}); trackers in "hq:ws:<name>" ({rows, deleted}).
+function coll(name) {
+  if (name === "tasks") return { key: "hq:state", list: "tasks", clean: cleanTask, label: "Board", name: (t) => t.text, status: (t) => TASK_LABEL[t.status] };
+  const ws = WS[name]; if (!ws) return null;
+  return { key: "hq:ws:" + name, list: "rows", clean: (r) => cleanRow(ws, r), label: ws.label, name: ws.name, status: (r) => r.status, ws: name };
+}
+function pruneTasks(st) {
+  const cut = Date.now() - DONE_KEEP_MS; const tombs = new Set(st.deleted);
+  st.tasks = st.tasks.filter((t) => { if (t.status === "done" && t.doneAt && t.doneAt < cut) { tombs.add(t.id); return false; } return true; });
+  st.deleted = [...tombs].slice(-HQ_MAX_TOMBS);
+  return st;
+}
+async function readColl(env, c) {
+  const raw = (await env.KV.get(c.key, "json")) || {};
+  const st = { [c.list]: (Array.isArray(raw[c.list]) ? raw[c.list] : []).map(c.clean).filter(Boolean), deleted: Array.isArray(raw.deleted) ? raw.deleted : [], updatedAt: raw.updatedAt || 0 };
+  return c.list === "tasks" ? pruneTasks(st) : st;
+}
+// mode "replace": newest updatedAt wins (app). mode "patch": fields merge onto the existing item (bots).
+async function writeColl(env, c, body, mode, by) {
+  const cur = await readColl(env, c);
+  const tombs = new Set(cur.deleted.filter((x) => typeof x === "string"));
+  const byId = new Map(cur[c.list].map((x) => [x.id, x]));
+  const evs = []; let added = 0, changed = 0, removed = 0;
+  for (const id of (Array.isArray(body.deleted) ? body.deleted : [])) {
+    if (typeof id !== "string" || id.length > 64) continue;
+    if (byId.has(id)) { removed++; if (mode === "replace" && evs.length < 5) evs.push(ev(by, "Deleted from " + c.label + ": " + c.name(byId.get(id)), "delete", { ws: c.ws })); }
+    tombs.add(id); byId.delete(id);
+  }
+  const incoming = Array.isArray(body[c.list]) ? body[c.list] : [];
+  for (const raw of incoming.slice(0, HQ_MAX_ITEMS)) {
+    if (!raw || typeof raw !== "object") continue;
+    const old = byId.get(str(raw.id, 64));
+    let item;
+    if (mode === "patch") item = c.clean(Object.assign({}, old || {}, raw, { updatedAt: Date.now(), createdAt: old ? old.createdAt : Date.now() }));
+    else item = c.clean(raw);
+    if (!item || tombs.has(item.id) && mode !== "patch") continue;
+    if (mode === "patch") tombs.delete(item.id);
+    if (old && mode === "replace" && (item.updatedAt || 0) < (old.updatedAt || 0)) continue;
+    if (!old) { added++; if (mode === "replace" && evs.length < 5) evs.push(ev(by, "Added to " + c.label + ": " + c.name(item), "add", { ws: c.ws })); }
+    else if (JSON.stringify(Object.assign({}, old, { updatedAt: 0 })) !== JSON.stringify(Object.assign({}, item, { updatedAt: 0 }))) {
+      changed++;
+      if (mode === "replace" && evs.length < 5) {
+        const moved = c.status(old) !== c.status(item);
+        evs.push(ev(by, (moved ? "Moved to " + c.status(item) + ": " : "Updated in " + c.label + ": ") + c.name(item), moved ? "move" : "update", { ws: c.ws }));
+      }
+    }
+    byId.set(item.id, item);
+  }
+  let st = { [c.list]: [...byId.values()].filter((x) => !tombs.has(x.id)).slice(-HQ_MAX_ITEMS), deleted: [...tombs].slice(-HQ_MAX_TOMBS), updatedAt: Date.now() };
+  if (c.list === "tasks") st = pruneTasks(st);
+  await env.KV.put(c.key, JSON.stringify(st));
+  if (mode === "patch") {
+    const custom = str(body.activity, 300);
+    if (custom) evs.push(ev(by, custom, "bot", { ws: c.ws }));
+    else if (added || changed || removed) evs.push(ev(by, c.label + ": " + [added && added + " added", changed && changed + " updated", removed && removed + " removed"].filter(Boolean).join(", "), "bot", { ws: c.ws }));
+  } else if (evs.length >= 5 && added + changed + removed > 5) {
+    evs.push(ev(by, c.label + ": " + (added + changed + removed - 5) + " more changes", "update", { ws: c.ws }));
+  }
+  await addEvents(env, evs);
+  return { st, added, changed, removed };
 }
 
 export default {
@@ -168,27 +284,73 @@ export default {
     }
 
     // ---------- Penguin HQ ----------
+    // Board tasks (PIN). Old tasks without a status migrate: done -> "done", else "todo".
     if (path === "/hq/state") {
       if (req.method !== "GET" && req.method !== "PUT") return json(req, 405, { ok: false, error: "method" });
       const bad = await checkPin(req, env, cfg); if (bad) return bad;
-      const cur = (await env.KV.get("hq:state", "json")) || { tasks: [], deleted: [], updatedAt: 0 };
-      if (req.method === "GET") return json(req, 200, { ok: true, state: cur });
+      const c = coll("tasks");
+      if (req.method === "GET") return json(req, 200, { ok: true, state: await readColl(env, c) });
       const body = await readJson(req);
       if (!body || !Array.isArray(body.tasks)) return json(req, 400, { ok: false, error: "bad_state", message: "Need {tasks: [], deleted: []}" });
-      // Merge: newest updatedAt wins per task; deleted ids are kept as tombstones.
-      const tombs = new Set((cur.deleted || []).filter((x) => typeof x === "string"));
-      (Array.isArray(body.deleted) ? body.deleted : []).forEach((x) => { if (typeof x === "string" && x.length <= 64) tombs.add(x); });
-      const byId = new Map();
-      (cur.tasks || []).forEach((t) => byId.set(t.id, t));
-      body.tasks.slice(0, HQ_MAX_TASKS).forEach((raw) => {
-        const t = cleanTask(raw); if (!t) return;
-        const old = byId.get(t.id);
-        if (!old || (t.updatedAt || 0) >= (old.updatedAt || 0)) byId.set(t.id, t);
-      });
-      const tasks = [...byId.values()].filter((t) => !tombs.has(t.id)).slice(-HQ_MAX_TASKS);
-      const st = { tasks, deleted: [...tombs].slice(-HQ_MAX_TOMBS), updatedAt: Date.now() };
-      await env.KV.put("hq:state", JSON.stringify(st));
-      return json(req, 200, { ok: true, state: st });
+      const r = await writeColl(env, c, body, "replace", "RK");
+      return json(req, 200, { ok: true, state: r.st });
+    }
+    // Bots/routines: upsert tasks with the write token.
+    if (path === "/hq/tasks") {
+      if (req.method !== "POST" && req.method !== "PUT") return json(req, 405, { ok: false, error: "method" });
+      if (!(await tokenOk(req, env, false))) return json(req, 401, { ok: false, error: "bad_token" });
+      const body = await readJson(req);
+      if (!body || (!Array.isArray(body.tasks) && !Array.isArray(body.deleted))) return json(req, 400, { ok: false, error: "bad_body", message: "Need {tasks: [...]} and/or {deleted: [...]}" });
+      const r = await writeColl(env, coll("tasks"), body, "patch", body.by || "Bot");
+      return json(req, 200, { ok: true, added: r.added, updated: r.changed, removed: r.removed, total: r.st.tasks.length });
+    }
+    // Workspaces: /hq/ws (counts), /hq/ws/<ar|closeout|members|permits>
+    if (path === "/hq/ws") {
+      if (req.method !== "GET") return json(req, 405, { ok: false, error: "method" });
+      const bad = await checkPin(req, env, cfg); if (bad) return bad;
+      const out = {};
+      for (const name of Object.keys(WS)) {
+        const st = await readColl(env, coll(name)); const by = {};
+        st.rows.forEach((r) => { by[r.status] = (by[r.status] || 0) + 1; });
+        out[name] = { label: WS[name].label, statuses: WS[name].statuses, count: st.rows.length, byStatus: by, needsRK: st.rows.filter((r) => r.needsRK).length };
+      }
+      return json(req, 200, { ok: true, workspaces: out });
+    }
+    const wsm = path.match(/^\/hq\/ws\/([a-z]+)$/);
+    if (wsm) {
+      const c = coll(wsm[1]);
+      if (!c || wsm[1] === "tasks") return json(req, 404, { ok: false, error: "no_workspace" });
+      if (req.method === "POST") {
+        if (!(await tokenOk(req, env, false))) return json(req, 401, { ok: false, error: "bad_token" });
+        const body = await readJson(req);
+        if (!body || (!Array.isArray(body.rows) && !Array.isArray(body.deleted))) return json(req, 400, { ok: false, error: "bad_body", message: "Need {rows: [...]} and/or {deleted: [...]}" });
+        const r = await writeColl(env, c, body, "patch", body.by || "Bot");
+        return json(req, 200, { ok: true, added: r.added, updated: r.changed, removed: r.removed, total: r.st.rows.length });
+      }
+      if (req.method !== "GET" && req.method !== "PUT") return json(req, 405, { ok: false, error: "method" });
+      const bad = await checkPin(req, env, cfg); if (bad) return bad;
+      if (req.method === "GET") return json(req, 200, { ok: true, state: await readColl(env, c), statuses: WS[wsm[1]].statuses });
+      const body = await readJson(req);
+      if (!body || !Array.isArray(body.rows)) return json(req, 400, { ok: false, error: "bad_state", message: "Need {rows: [], deleted: []}" });
+      const r = await writeColl(env, c, body, "replace", "RK");
+      return json(req, 200, { ok: true, state: r.st });
+    }
+    // Activity feed: GET with PIN, POST with the write token.
+    if (path === "/hq/activity") {
+      if (req.method === "GET") {
+        const bad = await checkPin(req, env, cfg); if (bad) return bad;
+        return json(req, 200, { ok: true, events: ((await env.KV.get("hq:activity", "json")) || { events: [] }).events });
+      }
+      if (req.method === "POST" || req.method === "PUT") {
+        if (!(await tokenOk(req, env, false))) return json(req, 401, { ok: false, error: "bad_token" });
+        const body = await readJson(req);
+        const list = body && Array.isArray(body.events) ? body.events : body ? [body] : [];
+        const evs = list.slice(0, 20).map((e) => e && str(e.text, 300) ? ev(e.by || "Bot", e.text, str(e.kind, 20) || "bot", { ws: WS[e.ws] ? e.ws : undefined, needsRK: e.needsRK === true || undefined }) : null).filter(Boolean);
+        if (!evs.length) return json(req, 400, { ok: false, error: "bad_event", message: "Need {text, by?}" });
+        await addEvents(env, evs.reverse());
+        return json(req, 200, { ok: true, added: evs.length });
+      }
+      return json(req, 405, { ok: false, error: "method" });
     }
 
     if (path === "/hq/brief") {
@@ -197,20 +359,17 @@ export default {
         return json(req, 200, { ok: true, brief: (await env.KV.get("hq:brief", "json")) || null });
       }
       if (req.method === "PUT" || req.method === "POST") {
-        // Write-only token for routines. Only its SHA-256 hash is stored in the Worker.
-        if (!env.HQ_BRIEF_TOKEN_HASH) return json(req, 503, { ok: false, error: "no_token", message: "Brief writer token isn't configured." });
-        const auth = req.headers.get("Authorization") || "";
-        const tok = auth.replace(/^bearer\s+/i, "").trim();
-        if (!tok || tok.length > 200 || !safeEq(await sha256Hex(tok), String(env.HQ_BRIEF_TOKEN_HASH).toLowerCase())) return json(req, 401, { ok: false, error: "bad_token" });
+        if (!env.HQ_BRIEF_TOKEN_HASH && !env.HQ_WRITE_TOKEN_HASH) return json(req, 503, { ok: false, error: "no_token", message: "Brief writer token isn't configured." });
+        if (!(await tokenOk(req, env, true))) return json(req, 401, { ok: false, error: "bad_token" });
         const body = await readJson(req);
         const brief = cleanBrief(body && body.brief ? body.brief : body);
         if (!brief) return json(req, 400, { ok: false, error: "bad_brief", message: "Need a headline or at least one item." });
         await env.KV.put("hq:brief", JSON.stringify(brief));
+        await addEvents(env, [ev(brief.from || "Bot", "Posted the daily brief" + (brief.headline ? ": " + brief.headline : ""), "brief")]);
         return json(req, 200, { ok: true, brief });
       }
       return json(req, 405, { ok: false, error: "method" });
     }
-
     return json(req, 404, { ok: false, error: "not_found" });
   }
 };
