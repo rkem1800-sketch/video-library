@@ -323,7 +323,8 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid 
       Crypto:     { c: "#f2a83b", card: "linear-gradient(165deg,#2c1c08 0%,#140d05 100%)" },
       Motivation: { c: "#ff7a52", card: "linear-gradient(165deg,#2e140c 0%,#150907 100%)" },
       Sales:      { c: "#7fa8ff", card: "linear-gradient(165deg,#111c33 0%,#090e1a 100%)" },
-      AI:         { c: "#c58bff", card: "linear-gradient(165deg,#22113a 0%,#100819 100%)" }
+      AI:         { c: "#c58bff", card: "linear-gradient(165deg,#22113a 0%,#100819 100%)" },
+      Business:   { c: "#3ad6c8", card: "linear-gradient(165deg,#0c2a28 0%,#061413 100%)" }
     };
     const CATS = Object.keys(CAT);
     function hexA(hex, a) {
@@ -351,6 +352,10 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid 
         "<rect x='14' y='18' width='52' height='40' rx='12' fill='" + soft + "' stroke='" + c + "' stroke-width='3.5'/>" +
         "<circle cx='30' cy='36' r='5' fill='" + c + "'/><circle cx='50' cy='36' r='5' fill='" + c + "'/><path d='M31 47 H49' stroke='" + c + "' stroke-width='3.5' stroke-linecap='round'/>" +
         "<path d='M8 32 V44 M72 32 V44' stroke='" + c + "' stroke-width='4' stroke-linecap='round'/><path d='M28 58 V68 H52 V58' fill='none' stroke='" + c + "' stroke-opacity='.5' stroke-width='3'/></svg>";
+      if (cat === "Business") return "<svg viewBox='0 0 80 80' aria-hidden='true'><rect x='10' y='28' width='60' height='40' rx='8' fill='" + soft + "' stroke='" + c + "' stroke-width='3.5'/>" +
+        "<path d='M28 28 V22 a6 6 0 0 1 6 -6 H46 a6 6 0 0 1 6 6 V28' fill='none' stroke='" + c + "' stroke-width='3.5' stroke-linejoin='round'/>" +
+        "<path d='M10 42 H70' stroke='" + c + "' stroke-width='3' stroke-opacity='.6'/>" +
+        "<rect x='34' y='38' width='12' height='8' rx='2' fill='" + c + "'/></svg>";
       return "";
     }
     const PLAY = "<svg viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z'/></svg>";

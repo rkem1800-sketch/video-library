@@ -34,6 +34,92 @@
   },
   "videos": [
     {
+      "id": "x4rsTf9wcPA",
+      "youtubeId": "x4rsTf9wcPA",
+      "category": "Business",
+      "title": "The Government is DESPERATE for You to Start This Business",
+      "channel": "GovClose | DoD Contract Academy (Rick Howard)",
+      "date": "2026-11-17",
+      "dateLabel": "Nov 17, 2026",
+      "length": "29:02",
+      "url": "https://youtu.be/x4rsTf9wcPA",
+      "gist": "The government already pays small businesses million-dollar contracts for ordinary work. He says the winners research early on SAM.gov and USAspending.gov. They don't wait for an RFP and fire off proposals.",
+      "points": [
+        {
+          "title": "Five real small-business awards",
+          "text": "Tree maintenance ($1.76M), fire alarm upgrades ($690K, about $510M a year in spend), kosher/halal food for federal prisons ($1M), hospital wandering-protection alarms (about $150M a year), and an $18M airplane hangar repair."
+        },
+        {
+          "title": "Don't chase RFPs",
+          "text": "Writing proposals on SAM.gov is the last step. He says companies that only do that rarely win."
+        },
+        {
+          "title": "Research past awards first",
+          "text": "On USAspending.gov, look up your NAICS or keywords. See yearly spend, which agencies buy, which states get the work, and who already wins."
+        },
+        {
+          "title": "Answer Sources Sought early",
+          "text": "These are questions, not bids. Send your capability statement and recommendations before the solicitation comes out. If you can't do the whole job, look for a teammate or a subcontract."
+        },
+        {
+          "title": "Check procurement forecasts",
+          "text": "Acquisition.gov and the Navy long-range forecast list upcoming work, dollar ranges, incumbents, a contracting contact, and the target quarter. Funding can still change."
+        },
+        {
+          "title": "For Penguin Air",
+          "text": "You don't have to learn all of government contracting. Just how the government buys HVAC and plumbing. Start with facilities and mechanical work near bases and federal buildings in the Carolinas."
+        }
+      ],
+      "todo": [
+        "Search USAspending.gov for HVAC, plumbing and facilities maintenance spend near NC",
+        "On SAM.gov, filter Sources Sought for mechanical, HVAC and plumbing work",
+        "Note bonding, licenses, past performance and base-access requirements before you reply",
+        "Check Acquisition.gov forecasts (and nearby DoD ones) for upcoming facilities jobs",
+        "If a Sources Sought is bigger than you can do alone, find a teammate or offer to subcontract"
+      ],
+      "stamps": [
+        {
+          "seconds": 199,
+          "label": "Tree maintenance contracts"
+        },
+        {
+          "seconds": 310,
+          "label": "Find work before the RFP"
+        },
+        {
+          "seconds": 678,
+          "label": "Fire alarm services"
+        },
+        {
+          "seconds": 1070,
+          "label": "Hospital wandering alarms"
+        },
+        {
+          "seconds": 1352,
+          "label": "Hangar and building repair"
+        },
+        {
+          "seconds": 1582,
+          "label": "Agency procurement forecasts"
+        }
+      ],
+      "links": [
+        {
+          "title": "SAM.gov",
+          "href": "https://sam.gov"
+        },
+        {
+          "title": "USAspending.gov",
+          "href": "https://www.usaspending.gov"
+        },
+        {
+          "title": "Acquisition.gov procurement forecasts",
+          "href": "https://www.acquisition.gov/procurement-forecasts"
+        }
+      ],
+      "watch": "This is also a pitch for his paid GovClose program. The dollar figures are his read of public data and they change. No contract is guaranteed."
+    },
+    {
       "id": "fb-2393487488055769",
       "youtubeId": null,
       "category": "AI",

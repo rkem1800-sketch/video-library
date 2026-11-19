@@ -89,7 +89,7 @@ python3 -m http.server 8080
 
 Field notes:
 
-- `category` must be one of `Investing`, `Crypto`, `Motivation`, `Sales`. Each one sets the card's color and drawn icon. To add a new category, add it to `CAT` and `icon()` in `index.html`.
+- `category` must be one of `Investing`, `Crypto`, `Motivation`, `Sales`, `AI`, `Business`. Each one sets the card's color and drawn icon. To add a new category, add it to `CAT` and `icon()` in `index.html`.
 - `id` must be unique and must not change, because ticks and deletions are keyed to it.
 - `youtubeId` builds the timestamp links (`https://youtu.be/<id>?t=<seconds>`). For a channel or collection entry, set it to `null` and leave `stamps` empty.
 - `date` (`YYYY-MM-DD`, or `null`) sets the order, newest first. Entries with `null` go last.
