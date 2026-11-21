@@ -245,6 +245,76 @@
       "links": []
     },
     {
+      "id": "fb-1480312760679853",
+      "youtubeId": null,
+      "category": "AI",
+      "title": "How to Run Your Own Private AI",
+      "channel": "Professor Glitch (Facebook)",
+      "date": "2026-11-06",
+      "dateLabel": "Nov 6, 2026",
+      "length": "8:27",
+      "url": "https://www.facebook.com/share/v/14yPRQV4ftc/",
+      "gist": "You can run AI on hardware you control so files never go to OpenAI or Anthropic. He shows a solo Mac setup and a team server, then how to chat with your documents and lock it down.",
+      "points": [
+        {
+          "title": "1. Pick a model with the memory rule",
+          "text": "Size in billions × about 0.6 = GB needed, then leave room for the chat and other apps. A 9B model needs about 7 GB (fine on a 16 GB Mac). A ~30B model needs about 20 GB (32–64 GB RAM). 128 GB can run OpenAI's GPT-OSS 120B. His picks: Qwen 3 9B, then a larger Qwen 3 mixture-of-experts that only uses about 3B per word."
+        },
+        {
+          "title": "2. Solo path: your own Mac (most private)",
+          "text": "Easiest: LM Studio. No terminal. Search a model, download it, load it, drag in a PDF and ask. Full setup: Ollama runs the model (install from ollama.com), Open WebUI is the chat screen (Docker Desktop, then open localhost:3000). Raise Ollama's context length to 16K, and turn Cloud off so models don't run on their servers."
+        },
+        {
+          "title": "3. Team path: a private Ubuntu server",
+          "text": "Plain Ubuntu, no ready-made template. Official install scripts for Ollama, Docker, Open WebUI and Docling. Example he used: Hostinger KVM, 8 cores and 32 GB, about $26/month on the 2-year promo and about $50 at renewal. No graphics card, so it's slow (a few words a second). If 32 GB struggles, drop to the 9B model."
+        },
+        {
+          "title": "4. Put it on your domain with Caddy",
+          "text": "One DNS record, one Caddy install, HTTPS that renews itself. Create the first account right away — it becomes the admin. On a CPU box, turn thinking mode off or it adds a lot of waiting. No domain? Use Tailscale instead."
+        },
+        {
+          "title": "5. Chat with company documents (RAG)",
+          "text": "In Open WebUI, fix document settings before you upload anything (changing them later means reprocessing). Set the embedding model, turn on hybrid search so names and invoice numbers match, and point scanned PDFs at Docling or uploads fail. Create a Knowledge collection, then type # in a chat and pick it. Answers show citations to the exact paragraph."
+        },
+        {
+          "title": "6. Lock it down, in this order",
+          "text": "2FA on the hosting account. SSH keys, then password login off. Firewall with only ports 22, 80 and 443 open. Never open Ollama's port 11434 — it has no password. Keep software updated. Turn new sign-ups off and add people yourself. Open WebUI has no built-in 2FA, so use Google or Microsoft login, or put it on Tailscale so only your team can see it. Snapshot before every update."
+        },
+        {
+          "title": "7. The honest limits",
+          "text": "A rented server is still someone else's computer. Hostinger's terms say it's not a HIPAA or payment-card environment, so no patient data and no card numbers. Running it yourself doesn't make you compliant — it makes you responsible. Most private option: a machine in your own office with disk encryption on."
+        },
+        {
+          "title": "8. Add n8n for real work",
+          "text": "Install n8n on the same server with one more Docker command and its own Caddy address. Don't use the host's n8n template — a new template can wipe the server. Point n8n at your Ollama model. Then you can pull dates out of a contract uploaded through a form, sort tickets and draft replies, or write a Monday report, and the AI never leaves the server."
+        },
+        {
+          "title": "Tools and cost",
+          "text": "LM Studio or Ollama, Docker, Open WebUI, Docling, Caddy, optional Tailscale and n8n. A server is about $26–$50 a month. A 64 GB Mac Mini is a one-time cost, a little under $3,000. A rented graphics card full-time is about $250–$500 a month. Hourly GPU boxes (from about 40 cents/hour) have no backups and get deleted if credit hits zero — don't keep the company brain there."
+        },
+        {
+          "title": "Common mistakes",
+          "text": "Don't leave Ollama open to the internet. Researchers found about 17,500 exposed servers; a flaw called Bleeding Llama could leak conversations. Don't upload files before fixing document settings. Delete old policy versions or it will quote the wrong one. Spreadsheets are a trap: search only pulls a few rows, so keep Excel for totals."
+        }
+      ],
+      "todo": [
+        "Decide solo (your own Mac, most private) vs a team server",
+        "If solo: install LM Studio, pick a model that fits your RAM, and drag in a test PDF",
+        "If a server: use plain Ubuntu and official install commands — don't use a host template that can wipe the box",
+        "In Open WebUI, set embedding, hybrid search and Docling before you upload any files",
+        "Lock it down: 2FA, SSH keys, firewall on 22/80/443 only, never open port 11434, turn sign-ups off",
+        "Keep customer or card data off a rented VPS. If it has to stay private, use a machine in the office with disk encryption"
+      ],
+      "stamps": [],
+      "links": [
+        {
+          "title": "Original Facebook video",
+          "href": "https://www.facebook.com/watch/?v=1480312760679853"
+        }
+      ],
+      "watch": "He also pitches his paid community; exact commands are in a free blog post linked from his profile. A rented VPS is still someone else's computer, and Hostinger says it's not a HIPAA or card-data setup. Captions were messy on some model names (Qwen 3 9B and a larger Qwen 3 mixture-of-experts)."
+    },
+    {
       "id": "yAYMle6FWvc",
       "youtubeId": "yAYMle6FWvc",
       "category": "Crypto",
