@@ -34,6 +34,61 @@
   },
   "videos": [
     {
+      "id": "s_fL9yWwNGs",
+      "youtubeId": "s_fL9yWwNGs",
+      "category": "Investing",
+      "title": "When Fear Hits This Level, Stocks Usually Do THIS",
+      "channel": "The BS Sheet",
+      "date": "2026-11-21",
+      "dateLabel": "Nov 21, 2026",
+      "length": "14:54",
+      "url": "https://youtu.be/s_fL9yWwNGs",
+      "gist": "After Friday's drop, the S&P is in a correction and the VIX closed at 35.9. Their six-gauge dashboard says this looks like a sharp AI-stock selloff, not 2008 — but the market usually falls a bit more first, and rates are the risk to watch.",
+      "points": [
+        {
+          "title": "How far it has fallen",
+          "text": "The S&P peaked on Oct 6 and is 11.6% below that, 33 trading days later. Friday: S&P down 3.7%, Nasdaq 5.3%, chips almost 11%. The Nasdaq 100 is down 19.8%, a hair from a bear market. Semiconductors are down 42% since June. Only consumer staples rose among the 11 S&P sectors."
+        },
+        {
+          "title": "Gauges 1 and 2: panic in the options market",
+          "text": "The VIX closed at 35.9, the highest close since the April 2025 tariff crash. Short-term protection is more expensive than 3-month protection (40.7 vs 30.9), which is rare and usually shows up deep in a selloff. Individual investors are 51% bearish, versus a long-run average of about 31%."
+        },
+        {
+          "title": "Gauge 3: the selling is narrow",
+          "text": "About a quarter of S&P stocks actually rose on Friday. The damage is in chips and AI, led by Nvidia: Jensen Huang resigned on Nov 12, then the SEC news hit, and the stock fell about 14% on Friday, roughly 47% below its October high. Revenue still beat, and its outlook already assumes no China data-center chip sales."
+        },
+        {
+          "title": "Gauges 4 and 5: credit and earnings look calm",
+          "text": "Junk bond spreads are 3.52 points, the high for this year, but well under the 4.61 of April 2025. They've widened only 0.17 of a point, not the 1–2 points seen before 2001 and 2008. S&P earnings grew 32.9% last quarter, forecasts are still being raised, and the index is about 16.5 times next year's earnings, below its 10-year average of 19.1."
+        },
+        {
+          "title": "The catch on earnings: AI spending",
+          "text": "Alphabet, Meta and Amazon are spending more than their operating cash (Amazon is about $42B in the red over 12 months). Only Microsoft still covers its bill. Cloud revenue is still growing fast. If that spending stops paying off, they say this gauge breaks first, when earnings forecasts get cut."
+        },
+        {
+          "title": "Gauge 6: rates are stressed",
+          "text": "The Fed already hiked in September to 3.75–4%, inflation is 3.7%, and it meets again on Dec 9. After Friday the market still priced about a 92% chance of another hike, with rates peaking around 4.5%. The 10-year yield is 4.91%, down from 5.31% in early October. Oil is still near $90, and a new Congress plus a Jan 10 trade-truce deadline add political risk. Higher rates hit every stock, not just AI."
+        },
+        {
+          "title": "What usually happens after a VIX close above 35",
+          "text": "Since 1990 they found 17 similar first spikes. Six months later the S&P was higher 15 times; a year later, 14 times, with a median gain of 21.6% versus 11.9% in an average year. That is not a bottom call. After those days the S&P usually fell more first (median about 6%). The three misses were 2001, 2008 and March 2022."
+        },
+        {
+          "title": "Their read, and what would change it",
+          "text": "This looks more like a sharp correction in AI stocks than the start of 2008: fear is in options, not in credit or earnings. The warning light that matches a bad case is rates (like 2022). Watch for junk spreads above about 4.5 points, earnings forecasts getting cut, or a Dec 9 hike plus a 10-year yield back above 5.25%."
+        }
+      ],
+      "todo": [
+        "Don't treat a high VIX as a buy-the-bottom signal; in their past cases the S&P usually fell about 6% more first",
+        "Watch junk bond spreads; a move above about 4.5 points would mean lenders are backing off",
+        "Watch whether analysts start cutting earnings forecasts, especially if AI spending stops paying off",
+        "Mark the calendar: Dec 1 Huang's testimony, Dec 9 Fed, Dec 10 inflation report, Jan 10 trade truce"
+      ],
+      "stamps": [],
+      "links": [],
+      "watch": "A small channel with its own six-gauge dashboard, not advice. They used 17 cases and picked 35 as a round VIX cutoff; returns are price-only, no dividends. Nvidia and SEC details are from news reports they cite. The next few dates can change the picture fast."
+    },
+    {
       "id": "x4rsTf9wcPA",
       "youtubeId": "x4rsTf9wcPA",
       "category": "Business",
