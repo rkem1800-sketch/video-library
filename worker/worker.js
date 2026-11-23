@@ -120,6 +120,78 @@ function cleanRow(ws, r) {
   }
   return out;
 }
+
+const FIN_SECTIONS = ["plan", "budget", "expenses", "fixed"];
+function finNum(x) { if (typeof x === "string") x = parseFloat(x.replace(/[$,]/g, "")); return typeof x === "number" && isFinite(x) ? Math.round(x * 100) / 100 : null; }
+function finStatus(s) { const v = str(s, 20).toLowerCase().replace(/\s+/g, "_"); return v === "done" || v === "behind" || v === "on_track" ? v : "on_track"; }
+function cleanGoal(g) {
+  if (!g || typeof g !== "object" || !str(g.label, 120)) return null;
+  return { label: str(g.label, 120), amount: finNum(g.amount), actual: finNum(g.actual), sub: str(g.sub, 200), status: finStatus(g.status) };
+}
+function cleanPair(x) {
+  if (!x || typeof x !== "object") return null;
+  const actual = finNum(x.actual), budget = finNum(x.budget);
+  if (actual === null && budget === null) return null;
+  return { actual, budget, sub: str(x.sub, 200) };
+}
+function cleanFinanceSection(name, raw, by) {
+  if (raw === null) return null;
+  if (!raw || typeof raw !== "object") return undefined;
+  const now = Date.now(), who = str(by || raw.by, 60) || "Bot";
+  if (name === "plan") {
+    const yr = finNum(raw.year);
+    const yearly = Array.isArray(raw.yearly) ? raw.yearly.slice(0, 12).map(cleanGoal).filter(Boolean) : [];
+    const quarters = Array.isArray(raw.quarters) ? raw.quarters.slice(0, 8).map(cleanGoal).filter(Boolean) : [];
+    if (!yearly.length && !quarters.length) return undefined;
+    return { year: yr ? Math.floor(yr) : null, note: str(raw.note, 300), yearly, quarters, by: who, updatedAt: now };
+  }
+  if (name === "budget") {
+    const margins = Array.isArray(raw.margins) ? raw.margins.slice(0, 10).map((m) => {
+      if (!m || typeof m !== "object" || !str(m.label, 120)) return null;
+      const actual = finNum(m.actual), target = finNum(m.target);
+      if (actual === null && target === null) return null;
+      const st = m.status ? finStatus(m.status) : (actual !== null && target !== null && actual < target ? "behind" : "on_track");
+      return { label: str(m.label, 120), actual, target, status: st, sub: str(m.sub, 200) };
+    }).filter(Boolean) : [];
+    const revenue = cleanPair(raw.revenue), labor = cleanPair(raw.labor), overhead = cleanPair(raw.overhead);
+    if (!revenue && !margins.length && !labor && !overhead) return undefined;
+    return { period: str(raw.period, 40), note: str(raw.note, 300), revenue, margins, labor, overhead, by: who, updatedAt: now };
+  }
+  if (name === "expenses") {
+    const list = Array.isArray(raw.months) ? raw.months : (Array.isArray(raw.categories) ? [raw] : []);
+    const months = list.slice(0, 24).map((m) => {
+      if (!m || typeof m !== "object") return null;
+      const cats = Array.isArray(m.categories) ? m.categories.slice(0, 80).map((c) => {
+        if (!c || typeof c !== "object" || !str(c.name, 120)) return null;
+        const amount = finNum(c.amount); if (amount === null) return null;
+        return { name: str(c.name, 120), amount };
+      }).filter(Boolean) : [];
+      const month = str(m.month, 20), label = str(m.label, 60) || month;
+      const total = finNum(m.total), operatingTotal = finNum(m.operatingTotal), otherTotal = finNum(m.otherTotal);
+      if (!cats.length && total === null) return null;
+      return { month, label, operatingTotal, otherTotal, total: total !== null ? total : Math.round(cats.reduce((a, c) => a + c.amount, 0) * 100) / 100, categories: cats };
+    }).filter(Boolean);
+    if (!months.length) return undefined;
+    return { source: str(raw.source, 120), note: str(raw.note, 300), months, by: who, updatedAt: now };
+  }
+  if (name === "fixed") {
+    const list = Array.isArray(raw.items) ? raw.items : (raw.title || raw.landlord ? [raw] : []);
+    const items = list.slice(0, 20).map((it) => {
+      if (!it || typeof it !== "object") return null;
+      const title = str(it.title, 120) || str(it.landlord, 120); if (!title) return null;
+      return {
+        id: str(it.id, 64), title, landlord: str(it.landlord, 120), address: str(it.address, 200),
+        monthlyTotal: finNum(it.monthlyTotal), breakdown: str(it.breakdown, 200),
+        termEnd: str(it.termEnd, 40), renewedTo: str(it.renewedTo, 40),
+        escalation: str(it.escalation, 300), reminderTitle: str(it.reminderTitle, 160), reminderText: str(it.reminderText, 600)
+      };
+    }).filter(Boolean);
+    if (!items.length) return undefined;
+    return { note: str(raw.note, 300), items, by: who, updatedAt: now };
+  }
+  return undefined;
+}
+
 function cleanBrief(b) {
   if (!b || typeof b !== "object") return null;
   const items = Array.isArray(b.items) ? b.items.slice(0, 12).map((it) => {
@@ -377,6 +449,48 @@ export default {
       }
       return json(req, 405, { ok: false, error: "method" });
     }
+
+    if (path === "/hq/finance") {
+      if (req.method === "GET") {
+        const bad = await checkPin(req, env, cfg); if (bad) return bad;
+        const fin = (await env.KV.get("hq:finance", "json")) || { plan: null, budget: null, expenses: null, fixed: null, updatedAt: 0 };
+        return json(req, 200, { ok: true, finance: { plan: fin.plan || null, budget: fin.budget || null, expenses: fin.expenses || null, fixed: fin.fixed || null, updatedAt: fin.updatedAt || 0 } });
+      }
+      if (req.method === "POST" || req.method === "PUT") {
+        if (!(await tokenOk(req, env, false))) return json(req, 401, { ok: false, error: "bad_token" });
+        const body = await readJson(req);
+        if (!body || typeof body !== "object") return json(req, 400, { ok: false, error: "bad_body", message: "Invalid JSON." });
+        const cur = (await env.KV.get("hq:finance", "json")) || { plan: null, budget: null, expenses: null, fixed: null, updatedAt: 0 };
+        const next = { plan: cur.plan || null, budget: cur.budget || null, expenses: cur.expenses || null, fixed: cur.fixed || null, updatedAt: Date.now() };
+        const by = str(body.by, 60) || "Bot";
+        const updated = [];
+        if (typeof body.section === "string") {
+          const sec = body.section.trim();
+          if (!FIN_SECTIONS.includes(sec)) return json(req, 400, { ok: false, error: "bad_section", message: "Section must be plan, budget, expenses, or fixed." });
+          if (!("data" in body)) return json(req, 400, { ok: false, error: "bad_body", message: "Need data for section." });
+          const cleaned = cleanFinanceSection(sec, body.data, by);
+          if (cleaned === undefined) return json(req, 400, { ok: false, error: "bad_data", message: "Invalid or empty data for " + sec });
+          next[sec] = cleaned; updated.push(sec);
+        } else {
+          for (const sec of FIN_SECTIONS) {
+            if (sec in body) {
+              const cleaned = cleanFinanceSection(sec, body[sec], by);
+              if (cleaned === undefined) return json(req, 400, { ok: false, error: "bad_data", message: "Invalid or empty data for " + sec });
+              next[sec] = cleaned; updated.push(sec);
+            }
+          }
+        }
+        if (!updated.length) return json(req, 400, { ok: false, error: "bad_body", message: "Send {section, data} or one of plan, budget, expenses, fixed." });
+        await env.KV.put("hq:finance", JSON.stringify(next));
+        if (body.activity !== false) {
+          const actTxt = str(body.activity, 300) || ("Updated finance (" + updated.join(", ") + ")");
+          await addEvents(env, [ev(by, actTxt, "bot")]);
+        }
+        return json(req, 200, { ok: true, updated, finance: next });
+      }
+      return json(req, 405, { ok: false, error: "method" });
+    }
+
     return json(req, 404, { ok: false, error: "not_found" });
   }
 };
