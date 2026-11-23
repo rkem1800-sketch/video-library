@@ -1,4 +1,4 @@
-const CACHE = "video-library-v9";
+const CACHE = "video-library-v10";
 const ASSETS = [
   "./",
   "./index.html",

@@ -759,6 +759,49 @@
       "links": []
     },
     {
+      "id": "fb-2229447614291702",
+      "youtubeId": null,
+      "category": "Business",
+      "title": "How to Defer Income Forever",
+      "channel": "Coach Digital Trust (Facebook)",
+      "date": "2026-10-12",
+      "dateLabel": "Oct 12, 2026",
+      "length": "1:00",
+      "url": "https://www.facebook.com/share/r/1AVcgBcjgv/",
+      "gist": "He says you can defer most of your business income forever by selling 95% of your LLC to a special irrevocable trust. A regular living trust will not do it, and he wants you to comment CPA for a free look. Treat this as a pitch, not a plan.",
+      "points": [
+        {
+          "title": "1. Set up a very specific kind of trust",
+          "text": "He says it must be a non-grantor, irrevocable, discretionary, complex, spendthrift trust. A standard family or living trust, he says, will not qualify for the deferral."
+        },
+        {
+          "title": "2. Sell 95% of your LLC to that trust",
+          "text": "Do this as a non-officer, he says, and only if the business is an LLC — not a C-corp or S-corp. The idea is the trust owns the majority while you still run day-to-day operations."
+        },
+        {
+          "title": "3. Run income through the LLC, then issue a K-1 to the trust",
+          "text": "Because the trust owns 95%, he claims 95% of the income is deferred inside the trust and can stay deferred forever."
+        },
+        {
+          "title": "What he promises",
+          "text": "He says this legally cuts your tax bill by six or seven figures every year. Comment CPA and his page will do a free assessment of you and your business structure."
+        }
+      ],
+      "todo": [
+        "Do not change Penguin Air's ownership or tax setup from a 60-second reel",
+        "If you want a real read, send the video to your own CPA and ask whether any of it applies",
+        "Don't comment CPA on the ad or share financials with this page"
+      ],
+      "stamps": [],
+      "links": [
+        {
+          "title": "Original Facebook video",
+          "href": "https://www.facebook.com/watch/?v=2229447614291702"
+        }
+      ],
+      "watch": "Lead-magnet reel: 'comment CPA' gets his free assessment. 'Defer income forever' and 'six or seven figures every year' are his claims, not verified. Selling most of your company to a trust you still control is something the IRS looks at closely. Do not set this up from a reel."
+    },
+    {
       "id": "bayer",
       "youtubeId": null,
       "category": "Motivation",
