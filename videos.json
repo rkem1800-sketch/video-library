@@ -34,6 +34,83 @@
   },
   "videos": [
     {
+      "id": "1U91f7ttsdc",
+      "youtubeId": "1U91f7ttsdc",
+      "category": "Investing",
+      "title": "Stocks, Gold and Bitcoin All Crashed at Once. Here’s What’s Next",
+      "channel": "Mark Moss",
+      "date": "2026-11-25",
+      "dateLabel": "Nov 25, 2026",
+      "length": "19:00",
+      "url": "https://youtu.be/1U91f7ttsdc",
+      "gist": "Stocks, gold and Bitcoin all fell together in 45 days, but he says company profits didn't crash — a liquidity drain that started in July did. He thinks liquidity is already turning back up, so don't panic-sell the bounce. Zoom out, and watch the Fed and the dollar.",
+      "points": [
+        {
+          "title": "The same 45-day window",
+          "text": "About $6 trillion came out of U.S. stocks. In that stretch Nvidia fell 48%, Bitcoin 31%, and gold 15%. Monday's bounce was big, but he says they're still way down, and the bounce alone doesn't settle whether this is a crash or a 2020-style setup."
+        },
+        {
+          "title": "The headlines don't add up",
+          "text": "Fear shot up, and people are calling it an AI-bubble pop. He says S&P 500 earnings still grew about 33%, the strongest in four years, and Nvidia now trades at about 9 times forward earnings with 75% guidance. When stocks, gold and Bitcoin fall together, he reads that as a liquidity problem, not just a tech story."
+        },
+        {
+          "title": "The real cause started in July",
+          "text": "He treats liquidity like a tide: more of it lifts prices, less of it drops them, and it typically leads tech by about 13 weeks. July's drain shows up in October and November. Two huge IPOs (SpaceX, then Anthropic) raised about $156 billion, and Treasury issuance hit about $162 billion in November, all when liquidity was already tight."
+        },
+        {
+          "title": "Then came the accelerants",
+          "text": "The Fed had already hiked and then held rates tight in October. Midterms added a short-term hit, especially after talk of curbing data centers. Jensen Huang stepped down, leverage got wiped out (he took calls from people in margin calls), and the dollar ripped higher from Nov 9. That mix, he says, made the drop fast and violent."
+        },
+        {
+          "title": "What he thinks comes next",
+          "text": "Like 2020, the drain came first. He says liquidity is already turning back up, on a lag, and markets are starting to price that in over the next couple of months if it continues. Watch the next Fed meeting (hike, hold, or cut) and the dollar. He also says tech valuations have fallen below the March 2020 low even though profits are strong."
+        },
+        {
+          "title": "Zoom out before you sell",
+          "text": "Since 2018, Nvidia has had many drawdowns as big as this one, or bigger, and is still up almost 8,000% if you held. The S&P had several 20–35% drops and is up 234%. Bitcoin is more violent (he lists 50–70% drawdowns) but still up about 4,000% on that same view."
+        },
+        {
+          "title": "Bitcoin is his liquidity canary",
+          "text": "He puts Bitcoin furthest out on the risk curve, past tech and AI, so it reacts first to global liquidity. He says Bitcoin starting to recover is a sign liquidity is coming back. On-chain, most of the recent selling came from people who bought the top and sold the bottom."
+        }
+      ],
+      "todo": [
+        "Don't make a sell-or-buy decision off this week's bounce or a headline",
+        "Watch the next Fed meeting and whether liquidity keeps rising",
+        "Watch the dollar; another spike would pressure stocks, gold and Bitcoin again",
+        "If you use margin or leverage, this is the reminder to get off it",
+        "Zoom out on any holding that's down hard before you sell it"
+      ],
+      "stamps": [
+        {
+          "seconds": 59,
+          "label": "Why the headlines don't add up"
+        },
+        {
+          "seconds": 273,
+          "label": "The July liquidity drain"
+        },
+        {
+          "seconds": 418,
+          "label": "Rates, Huang, leverage and the dollar"
+        },
+        {
+          "seconds": 624,
+          "label": "Is this March 2020 again?"
+        },
+        {
+          "seconds": 795,
+          "label": "Every drawdown since 2018"
+        },
+        {
+          "seconds": 976,
+          "label": "Bitcoin is the liquidity canary"
+        }
+      ],
+      "links": [],
+      "watch": "He pitches a paid 3-day 'wealth engineering' workshop on January 6–8, 2027. The $6 trillion, earnings, valuation and IPO figures are his. He recorded this after Monday's bounce and even floats that it could be a dead-cat bounce. Not advice, and a midterm-year rally is a pattern, not a promise."
+    },
+    {
       "id": "s_fL9yWwNGs",
       "youtubeId": "s_fL9yWwNGs",
       "category": "Investing",
