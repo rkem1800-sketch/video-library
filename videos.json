@@ -992,6 +992,50 @@
       "watch": "Lead-magnet reel: 'comment CPA' gets his free assessment. 'Defer income forever' and 'six or seven figures every year' are his claims, not verified. Selling most of your company to a trust you still control is something the IRS looks at closely. Do not set this up from a reel."
     },
     {
+      "id": "fb-905117592537683",
+      "youtubeId": null,
+      "category": "Tech",
+      "title": "Should You Build a Homelab?",
+      "channel": "Rashid Epps (Facebook)",
+      "date": "2026-10-10",
+      "dateLabel": "Oct 10, 2026",
+      "length": "1:09",
+      "url": "https://www.facebook.com/share/r/1CWJ9faJh1/",
+      "gist": "A homelab is just a computer at home that runs your own apps so you can drop some subscriptions. Start with an old laptop or mini PC, run things like Nextcloud, Jellyfin or Plex, Pi-hole, and Tailscale, and expect a learning curve.",
+      "points": [
+        {
+          "title": "What a homelab is",
+          "text": "Your own setup at home where you store data, run apps, or experiment with tech. He built one because he got tired of paying for subscriptions he could host himself."
+        },
+        {
+          "title": "What you can run",
+          "text": "Nextcloud as your own Google Drive. Jellyfin or Plex as your own Netflix for movies and shows you already have. Pi-hole to block ads on every device on your home network."
+        },
+        {
+          "title": "Privacy, control, and access from anywhere",
+          "text": "The big benefit, he says, is you keep the data and you control the setup. Tailscale makes a private network so you can reach the homelab from anywhere."
+        },
+        {
+          "title": "You don't need expensive hardware",
+          "text": "The apps he names are free. You can start with an old laptop or a mini PC. There's a learning curve, and he says half the fun is building it the way you want."
+        }
+      ],
+      "todo": [
+        "If this sounds useful, start with an old laptop or mini PC, not a fancy NAS",
+        "Pick one app first (Nextcloud, Jellyfin or Plex, or Pi-hole) instead of all at once",
+        "Use Tailscale to reach it from outside the house — don't open your home to the internet",
+        "For the step-by-step setup, see the Nov 12 'Beginner Homelab' video already in this library"
+      ],
+      "stamps": [],
+      "links": [
+        {
+          "title": "Original Facebook video",
+          "href": "https://www.facebook.com/watch/?v=905117592537683"
+        }
+      ],
+      "watch": "Short explainer, not a setup guide. 'Cancel your subscriptions' is the hook. The apps are free, but you still need updates and backups, and Jellyfin or Plex is only for media you have the right to store. He asks you to comment if you want a fuller guide."
+    },
+    {
       "id": "bayer",
       "youtubeId": null,
       "category": "Motivation",
