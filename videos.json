@@ -377,6 +377,68 @@
       "links": []
     },
     {
+      "id": "fb-1169444036023949",
+      "youtubeId": null,
+      "category": "Tech",
+      "title": "A Beginner Homelab You Can Start Today",
+      "channel": "Emmanuel Nyatefe (Facebook)",
+      "date": "2026-11-12",
+      "dateLabel": "Nov 12, 2026",
+      "length": "1:08",
+      "url": "https://www.facebook.com/share/r/1BTvDPbRFJ/",
+      "gist": "You can start a home server on a laptop you already have, run your own Netflix and Google Drive with Docker, and reach it from your phone with Tailscale so you don't open your home to the internet.",
+      "points": [
+        {
+          "title": "1. Use an old laptop",
+          "text": "Start with one you already have. 256 GB of storage is enough to begin. Use 500 GB or more if you want movies on it."
+        },
+        {
+          "title": "2. Keep the OS, or switch to Ubuntu Server",
+          "text": "Windows is fine to start. Or install Ubuntu Server, a free operating system made for running servers."
+        },
+        {
+          "title": "3. Install Docker",
+          "text": "It's free. It runs each app in its own box, so adding an app takes one command instead of a whole project."
+        },
+        {
+          "title": "4. Add the apps you actually want",
+          "text": "Jellyfin works like your own Netflix for movies you already have. Nextcloud works like your own Google Drive for files."
+        },
+        {
+          "title": "5. Reach it from your phone with Tailscale",
+          "text": "Tailscale is a free app that links your devices on a private network. You can use the server from anywhere without opening your home to the internet."
+        },
+        {
+          "title": "6. Upgrade only when you outgrow it",
+          "text": "When the laptop isn't enough, move to a Raspberry Pi (it uses very little power), then a mini PC or a full server."
+        },
+        {
+          "title": "Tools",
+          "text": "An old laptop, Docker, Jellyfin, Nextcloud, and Tailscale. Optional later: Ubuntu Server, a Raspberry Pi, a mini PC, or a rack server."
+        },
+        {
+          "title": "Safety notes",
+          "text": "Don't open ports on your home router to the internet — that's why he uses Tailscale. Keep the laptop updated, and back up anything you put in Nextcloud. Jellyfin is only for media you have the right to store."
+        }
+      ],
+      "todo": [
+        "Pick an old laptop with at least 256 GB (500 GB or more if you want movies on it)",
+        "Keep Windows, or install Ubuntu Server if you want a dedicated machine",
+        "Install Docker",
+        "Add Jellyfin and/or Nextcloud",
+        "Install Tailscale on the laptop and your phone — don't open ports to the internet",
+        "When the laptop isn't enough, move to a Raspberry Pi, then a mini PC or a server"
+      ],
+      "stamps": [],
+      "links": [
+        {
+          "title": "Original Facebook video",
+          "href": "https://www.facebook.com/watch/?v=1169444036023949"
+        }
+      ],
+      "watch": "Short beginner reel, and 'cancel your subscriptions' is his hook. A home server still needs updates and backups. Use Tailscale like he shows; don't open your home to the internet."
+    },
+    {
       "id": "fb-1480312760679853",
       "youtubeId": null,
       "category": "AI",
