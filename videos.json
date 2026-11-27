@@ -34,6 +34,91 @@
   },
   "videos": [
     {
+      "id": "fb-1787287985688960",
+      "youtubeId": null,
+      "category": "Investing",
+      "title": "AI Must Grow Fast Or The Market Implodes",
+      "channel": "Tom Bilyeu (Facebook)",
+      "date": "2026-11-24",
+      "dateLabel": "Nov 24, 2026",
+      "length": "5:14",
+      "url": "https://www.facebook.com/share/v/1HCnY7cwfK/",
+      "gist": "He says the bond market is flashing crash warnings while stocks sit at all-time highs, and the whole rally rides on AI. If AI revenue doesn't grow fast enough to pay for the data-center build-out, he expects bankruptcies and a big drop.",
+      "points": [
+        {
+          "title": "Bond yields as a crash warning",
+          "text": "He cites Bank of America's chief strategist pointing to three times bond yields ripped higher right before a crash: Japan 1989, the U.S. 1999 and China 2007. He says the same pattern is showing up now, and in several big economies at once, which leaves fewer safe places to move money."
+        },
+        {
+          "title": "Stocks don't agree with bonds",
+          "text": "While bonds signal distress, the stock market is at a fresh all-time high. He says prices assume a huge, fast jump in value that has to arrive before the build-out costs catch up."
+        },
+        {
+          "title": "Chip stocks are stretched",
+          "text": "He says the Philadelphia Semiconductor Index is 62% above its 200-day moving average, the widest gap in the index's history."
+        },
+        {
+          "title": "Shiller CAPE over 40",
+          "text": "He says it has only crossed 40 twice in about 150 years: 1929 and 1999, both followed by huge crashes. At 40, investors pay $40 for every $1 of average inflation-adjusted earnings (long-run average about 17), and he says studies imply a 10-year S&P return near zero or negative."
+        },
+        {
+          "title": "A 1720-style bubble comparison",
+          "text": "He says Bank of America's strategist now compares this to the Mississippi bubble of 1720, not just the dot-com bubble."
+        },
+        {
+          "title": "Seven stocks, one bet",
+          "text": "He says the Magnificent Seven are about 30% of the U.S. market, and nearly all the growth rides on AI and its costly infrastructure build-out."
+        },
+        {
+          "title": "Build-outs breed bankruptcies",
+          "text": "Railroads in the UK and U.S. and the telecom build-out for the internet all wiped people out when revenue lagged spending. The tech wasn't bad, he says, but early owners went bust and the next owners reaped the gains."
+        }
+      ],
+      "todo": [
+        "Check how much of your portfolio leans on the Magnificent Seven and AI/chip stocks",
+        "Watch bond yields, not just stock prices",
+        "Watch whether AI revenue keeps up with data-center spending",
+        "Don't make a big move off one short clip; check the numbers yourself first"
+      ],
+      "stamps": [
+        {
+          "seconds": 5,
+          "label": "Bond-yield crash fingerprints"
+        },
+        {
+          "seconds": 75,
+          "label": "Stocks at all-time highs anyway"
+        },
+        {
+          "seconds": 112,
+          "label": "Chip stocks 62% above average"
+        },
+        {
+          "seconds": 135,
+          "label": "Shiller CAPE crosses 40"
+        },
+        {
+          "seconds": 231,
+          "label": "Mississippi bubble of 1720"
+        },
+        {
+          "seconds": 245,
+          "label": "Magnificent Seven ≈ 30% of market"
+        },
+        {
+          "seconds": 280,
+          "label": "Railroads, telecom and bankruptcies"
+        }
+      ],
+      "links": [
+        {
+          "title": "Original Facebook video",
+          "href": "https://www.facebook.com/watch/?v=1787287985688960"
+        }
+      ],
+      "watch": "Short 5-minute clip with no sponsor in it. The bond-yield pattern, the 62% chip gap, the CAPE figures and the Mississippi-bubble comparison are his or his quoted strategist's, not verified here. Crash calls are a prediction, not a promise. Not advice."
+    },
+    {
       "id": "1U91f7ttsdc",
       "youtubeId": "1U91f7ttsdc",
       "category": "Investing",
