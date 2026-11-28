@@ -34,6 +34,114 @@
   },
   "videos": [
     {
+      "id": "fb-1452983233077212",
+      "youtubeId": null,
+      "category": "Crypto",
+      "title": "The Wealth Transfer Has Officially Started",
+      "channel": "Alexanderoncrypto (Facebook)",
+      "date": "2026-11-26",
+      "dateLabel": "Nov 26, 2026",
+      "length": "1:11:07",
+      "url": "https://www.facebook.com/share/v/1E8YyRTEb5/",
+      "gist": "He says a 2008-style wealth transfer is starting, with money rotating from stocks into crypto, and his Bitcoin-halving model put the bottom around Nov 7, 2026. He buys altcoins, not Bitcoin, and the last 10 minutes sell a $29/month community and a $1,000 non-refundable call for people with $250K+.",
+      "points": [
+        {
+          "title": "Wealth transfers happen in crashes",
+          "text": "He says after 2008 the bottom half's inflation-adjusted wealth fell 79% vs about 21% for the top 1%, and the assets that bounce back fastest (stocks last time) make the rich richer."
+        },
+        {
+          "title": "The rich hold stocks, not real estate",
+          "text": "He cites the top 10% owning 88% of corporate equity and fund holdings in Q2 2026, compared with 44% of real estate."
+        },
+        {
+          "title": "46 companies are moving into crypto",
+          "text": "He says 46 companies drove most of the last wealth creation, and names like Apple, Microsoft, NVIDIA, JPMorgan, Visa and Mastercard are now building on or buying crypto."
+        },
+        {
+          "title": "Halving makes Bitcoin predictable",
+          "text": "Bitcoin's new supply is cut in half about every four years (next one early 2028), with a 21 million cap. He shows 541, 512 and 514 days from past bottoms to the halving."
+        },
+        {
+          "title": "His model's bottom call",
+          "text": "He says the same model put the bottom at Nov 7, 2026. He claims it helped him sell 80% of his crypto in late October, near the top."
+        },
+        {
+          "title": "Altcoins over Bitcoin",
+          "text": "He says his study of 500 altcoins found an average 33.3x last cycle vs 8x for Bitcoin, and most altcoin peaks came before the halving."
+        },
+        {
+          "title": "His coin filters",
+          "text": "Already regulated as a commodity, far below its all-time high (ideally about 90%), big gains last cycle, backed by the 46 companies, and low liquidity. His final three coins appear on screen; he doesn't say their names out loud."
+        },
+        {
+          "title": "Three skills to trade",
+          "text": "Pick coins (fundamental analysis), manage the portfolio instead of buy-and-hope, and read market direction. He claims buy-and-hope gives you above an 84% chance of losing everything."
+        }
+      ],
+      "todo": [
+        "Treat the Nov 7 bottom call as one creator's model, not a fact",
+        "Check any coin's regulation status, liquidity and drawdown yourself before buying",
+        "Don't pay for a group or a non-refundable call because a video says the door is closing"
+      ],
+      "stamps": [
+        {
+          "seconds": 161,
+          "label": "Stocks-to-crypto wealth transfer claim"
+        },
+        {
+          "seconds": 267,
+          "label": "2008: bottom half -79% vs top 1% -21%"
+        },
+        {
+          "seconds": 1079,
+          "label": "Bitcoin halving explained"
+        },
+        {
+          "seconds": 1373,
+          "label": "Days from bottom to halving"
+        },
+        {
+          "seconds": 1440,
+          "label": "Model calls Nov 7, 2026 bottom"
+        },
+        {
+          "seconds": 2219,
+          "label": "500-altcoin study: 33.3x average"
+        },
+        {
+          "seconds": 2440,
+          "label": "Altcoin peaks come before the halving"
+        },
+        {
+          "seconds": 2880,
+          "label": "His coin filters"
+        },
+        {
+          "seconds": 3036,
+          "label": "Final three coins (on screen)"
+        },
+        {
+          "seconds": 3157,
+          "label": "Coins, portfolio, market direction"
+        },
+        {
+          "seconds": 3543,
+          "label": "$29 community pitch"
+        },
+        {
+          "seconds": 3661,
+          "label": "$1,000 round-table call for $250K+"
+        }
+      ],
+      "links": [
+        {
+          "title": "Original Facebook video",
+          "href": "https://www.facebook.com/watch/?v=1452983233077212"
+        }
+      ],
+      "watch": "This is a sales pitch: the last 10+ minutes sell his $29/month Skool community and a $1,000 non-refundable call that requires proof of $250K in liquid crypto, with fake urgency (\"shutting the door\", 10 days, Black Friday). The 88%/46-company stats, the Nov 7 bottom model, his 80% sell and 127x/$11M claims, and the 500-coin 33x study are his own and not checked here. He also frames it as a message from God. Not advice."
+    },
+    {
       "id": "fb-1787287985688960",
       "youtubeId": null,
       "category": "Investing",
